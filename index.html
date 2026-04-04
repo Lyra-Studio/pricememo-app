@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>買い物比較メモ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <button class="logo" onclick="goHome()">📓 買い物比較メモ</button>
+  <nav>
+    <button class="nb" onclick="goPage('compare',this)">📦 <span class="nl">商品</span></button>
+    <button class="nb" onclick="goPage('store',this)">🏪 <span class="nl">店名</span></button>
+    <button class="nb" onclick="goPage('home',this)">🔍 <span class="nl">検索</span></button>
+    <button class="nb" onclick="goPage('list',this)">📋 <span class="nl">一覧</span></button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ════════ HOME ════════ -->
+<div id="page-home" class="page">
+  <div class="home-wrap">
+    <div class="home-title">買い物比較メモ</div>
+    <div class="home-sub">商品名・店名・カテゴリ・メモをまとめて検索できます</div>
+
+    <div class="search-box">
+      <input class="search-input" id="home-q" type="text"
+        placeholder="例：やさい　日焼け止め　Amazon　香りがいい…"
+        oninput="homeSearch()" onkeydown="if(event.key==='Enter')homeSearch()">
+      <button class="search-btn" onclick="homeSearch()">検索</button>
+    </div>
+
+    <div class="home-chips" id="home-chips"></div>
+    <div class="home-hint" id="home-hint"></div>
+  </div>
+
+  <!-- 検索結果 -->
+  <div id="home-result-area" style="display:none">
+    <div class="filter-bar">
+      <span class="fl">絞り込み：</span>
+      <select class="fsl fsl-wide" id="home-sub" onchange="homeSearch()"><option value="">すべての比較カテゴリ</option></select>
+      <span class="fl">並び順：</span>
+      <select class="fsl" id="home-sort" onchange="homeSortChange()">
+        <option value="up-asc">単価 安い順</option>
+        <option value="up-desc">単価 高い順</option>
+        <option value="price-asc">価格 安い順</option>
+        <option value="new">新しい順</option>
+      </select>
+      <button class="btn-reset" onclick="resetHome()">✕ リセット</button>
+      <span class="result-count" id="home-count"></span>
+    </div>
+    <div class="list-header">
+      <span>商品名</span><span>店名</span><span>価格</span><span>量</span>
+      <span id="home-up-header" onclick="toggleHomeUpSort()" style="cursor:pointer;user-select:none">単価 <span id="home-up-arrow">↑</span></span>
+      <span>カテゴリ</span>
+    </div>
+    <div class="list-rows" id="home-list"></div>
+  </div>
+</div>
+
+<!-- ════════ REGISTER / EDIT ════════ -->
+<div id="page-add" class="page">
+  <div class="sec-title" id="add-title">➕ 商品を登録する</div>
+  <div class="edit-banner" id="edit-banner">✏️ 編集モード：登録済みのデータを修正して「更新する」を押してください。</div>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="fg s2">
+        <label>商品名 <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="例：木綿豆腐、SKIN AQUA 日焼け止め SPF50+">
+      </div>
+      <div class="fg">
+        <label>店名 <span class="req">*</span></label>
+        <input type="text" id="f-store" placeholder="例：セブン、Amazon、カインズ" list="dl-store">
+        <datalist id="dl-store"></datalist>
+      </div>
+      <div class="fg">
+        <label>大カテゴリ <span class="req">*</span></label>
+        <input type="text" id="f-main" placeholder="例：食品、コスメ、日用品" list="dl-main">
+        <datalist id="dl-main"></datalist>
+      </div>
+      <div class="fg s2">
+        <label>比較カテゴリ <span class="req">*</span></label>
+        <input type="text" id="f-sub" placeholder="例：豆腐、日焼け止め、マスカラ" list="dl-sub">
+        <datalist id="dl-sub"></datalist>
+      </div>
+      <div class="fg">
+        <label>価格（円）<span class="req">*</span></label>
+        <input type="number" id="f-price" placeholder="例：149" min="0" oninput="calcPreview()">
+      </div>
+      <div class="fg">
+        <label>量 × 単位（任意）</label>
+        <div class="amt-row">
+          <input type="number" id="f-amount" placeholder="例：450" min="0" oninput="calcPreview()">
+          <input type="text" id="f-unit" placeholder="g / ml / 個 / 本" list="dl-unit" oninput="calcPreview()">
+          <datalist id="dl-unit">
+            <option value="g"><option value="ml"><option value="個"><option value="本"><option value="枚"><option value="袋">
+          </datalist>
+        </div>
+      </div>
+      <div class="fg s2">
+        <label>単価プレビュー（g または ml のとき自動計算）</label>
+        <div class="up-preview" id="up-box">
+          <span class="up-lbl" id="up-lbl">価格と量（g / ml）を入力すると自動計算されます</span>
+          <span class="up-num" id="up-num"></span>
+        </div>
+      </div>
+      <div class="fg s2">
+        <label>メモ（任意）</label>
+        <textarea id="f-memo" placeholder="例：香りがいい、出にくい時がある、コスパが高い…"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-primary" id="save-btn" onclick="saveItem()">💾 登録する</button>
+      <button class="btn-sec" onclick="cancelEdit()">キャンセル</button>
+      <span class="save-msg" id="save-msg">✅ 登録しました！</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ LIST ════════ -->
+<div id="page-list" class="page">
+  <div class="sec-title">📋 商品一覧</div>
+  <div class="filter-bar">
+    <span class="fl">絞り込み：</span>
+    <input class="fsl" type="text" id="list-q" placeholder="キーワード…" oninput="renderList()" style="width:130px">
+    <select class="fsl fsl-wide" id="list-main" onchange="listMainChange()"><option value="">すべての大カテゴリ</option></select>
+    <select class="fsl fsl-wide" id="list-sub"  onchange="renderList()"><option value="">すべての比較カテゴリ</option></select>
+    <select class="fsl" id="list-sort" onchange="renderList()">
+      <option value="up-asc" selected>単価 安い順</option>
+      <option value="up-desc">単価 高い順</option>
+      <option value="price-asc">価格 安い順</option>
+      <option value="price-desc">価格 高い順</option>
+      <option value="new">新しい順</option>
+      <option value="name">商品名順</option>
+    </select>
+    <button class="btn-reset" onclick="resetList()">✕ リセット</button>
+    <span class="result-count" id="list-count"></span>
+  </div>
+  <div class="list-header">
+    <span>商品名</span><span>店名</span><span>価格</span><span>量</span>
+    <span id="list-up-header" onclick="toggleListUpSort()" style="cursor:pointer;user-select:none">単価 <span id="list-up-arrow">↑</span></span>
+    <span>カテゴリ</span>
+  </div>
+  <div class="list-rows" id="list-rows">
+    <div class="empty-state"><div class="empty-icon">📭</div>データがありません</div>
+  </div>
+</div>
+
+<!-- ════════ COMPARE（商品カテゴリ比較） ════════ -->
+<div id="page-compare" class="page active">
+  <div class="sec-title">📦 カテゴリ別 商品</div>
+  <div class="cmp-filter-bar">
+    <div class="cmp-filter-left">
+      <select class="fsl cmp-sub-sel" id="cmp-sub" onchange="renderCompare()"><option value="">カテゴリを選択してください</option></select>
+    </div>
+    <div class="cmp-filter-right">
+      <select class="fsl cmp-sort-sel" id="cmp-sort" onchange="cmpSortChange()">
+        <option value="up-asc" selected>単価↑安</option>
+        <option value="up-desc">単価↓高</option>
+        <option value="price-asc">価格↑安</option>
+        <option value="new">新しい順</option>
+      </select>
+      <button class="btn-reset" onclick="resetCompare()">✕</button>
+      <button class="btn-add-inline" onclick="goPageFromFilter('add')">＋登録</button>
+    </div>
+  </div>
+  <select id="cmp-main" style="display:none" onchange="cmpMainChange()"><option value="">すべて</option></select>
+  <div id="cmp-container"></div>
+</div>
+
+<!-- ════════ STORE（店名から探す） ════════ -->
+<div id="page-store" class="page">
+  <div class="sec-title">🏪 店名から探す</div>
+  <div class="cmp-filter-bar">
+    <div class="cmp-filter-left">
+      <select class="fsl cmp-sub-sel" id="store-sel" onchange="renderStore()"><option value="">店名を選択してください</option></select>
+    </div>
+    <div class="cmp-filter-right">
+      <select class="fsl cmp-sort-sel" id="store-sort" onchange="renderStore()">
+        <option value="up-asc" selected>単価↑安</option>
+        <option value="up-desc">単価↓高</option>
+        <option value="price-asc">価格↑安</option>
+        <option value="new">新しい順</option>
+      </select>
+      <button class="btn-reset" onclick="resetStore()">✕</button>
+      <button class="btn-add-inline" onclick="goPageFromFilter('add')">＋登録</button>
+    </div>
+  </div>
+  <div id="store-container"></div>
+</div>
+
+</main>
+
+<!-- ════════ 詳細モーダル ════════ -->
+<div class="modal-bg" id="modal-bg" onclick="bgClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div style="display:flex;align-items:flex-start;gap:8px;padding-right:32px">
+      <button id="m-star" class="star-btn" onclick="toggleStarModal()" style="font-size:22px;margin-top:2px">☆</button>
+      <div class="modal-name" id="m-name"></div>
+    </div>
+    <div class="modal-tags" id="m-tags"></div>
+    <div id="m-rows"></div>
+    <div class="modal-memo" id="m-memo" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn-edit"   onclick="editFromModal()">✏️ 編集</button>
+      <button class="btn-danger" onclick="deleteModal()">🗑 削除</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
