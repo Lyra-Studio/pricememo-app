@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>買い物比較メモ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── 変数 ── */
+:root {
+  --bg:      #f5f3ee;
+  --paper:   #ffffff;
+  --paper2:  #faf9f6;
+  --ink:     #1a1816;
+  --ink2:    #58564f;
+  --ink3:    #9c9a94;
+  --rule:    #e6e3dc;
+  --rule2:   #ccc9c0;
+  --green:   #3a6b52;
+  --green-l: #eaf2ed;
+  --orange:  #b85c12;
+  --orange-l:#fdf0e6;
+  --blue:    #2c5f8a;
+  --blue-l:  #e8f0f8;
+  --purple:  #6b4c8a;
+  --purple-l:#f2eef8;
+  --red:     #a83228;
+  --red-l:   #fbeae8;
+  --mono:    'DM Mono', monospace;
+  --sh:      0 1px 6px rgba(0,0,0,0.07);
+  --sh2:     0 4px 20px rgba(0,0,0,0.11);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── ヘッダー ── */
+header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 20px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: var(--sh);
+}
+.logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: -.2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background .12s;
+}
+.logo:hover { background: var(--green-l); }
+nav { display: flex; gap: 1px; }
+.nb {
+  padding: 5px 10px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.nb:hover  { background: var(--bg); color: var(--ink); }
+.nb.active { background: var(--green-l); color: var(--green); }
+
+/* ── メインレイアウト ── */
+main { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; }
+.page { display: none; }
+.page.active { display: block; }
+.sec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink2);
+  letter-spacing: .4px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ════════════════════════════════
+   トップ（ホーム）画面
+════════════════════════════════ */
+.home-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 64px;
+  padding-bottom: 40px;
+  gap: 0;
+}
+.home-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.5px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.home-sub {
+  font-size: 13px;
+  color: var(--ink3);
+  margin-bottom: 32px;
+  text-align: center;
+}
+/* 検索バー */
+.search-box {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  gap: 0;
+  border: 1.5px solid var(--rule2);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: var(--sh2);
+  transition: border-color .15s, box-shadow .15s;
+  margin-bottom: 20px;
+}
+.search-box:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(58,107,82,.1), var(--sh2);
+}
+.search-input {
+  flex: 1;
+  padding: 13px 18px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: transparent;
+}
+.search-input::placeholder { color: var(--ink3); }
+.search-btn {
+  padding: 0 20px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .12s;
+  white-space: nowrap;
+}
+.search-btn:hover { background: #2d5640; }
+
+/* カテゴリチップ（控えめ） */
+.home-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  max-width: 540px;
+}
+.chip {
+  padding: 4px 12px;
+  border: 1px solid var(--rule2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--paper);
+  color: var(--ink3);
+  font-family: inherit;
+  transition: all .12s;
+}
+.chip:hover  { color: var(--ink); border-color: var(--rule2); }
+.chip.active { background: var(--green-l); border-color: var(--green); color: var(--green); font-weight: 700; }
+
+/* 件数などの小ヒント */
+.home-hint {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-top: 28px;
+  text-align: center;
+}
+.home-hint b { color: var(--ink2); }
+
+/* ════════════════════════════════
+   検索結果エリア（ホーム内）
+════════════════════════════════ */
+#home-result-area { margin-top: 32px; width: 100%; }
+
+/* ════════════════════════════════
+   商品名トップページ 2カラムレイアウト
+════════════════════════════════ */
+.top-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+.top-left  { min-width: 0; }
+.top-right {
+  position: sticky;
+  top: 72px; /* header高さ + 余白 */
+}
+
+/* ════════════════════════════════
+   今日の買い物リスト
+════════════════════════════════ */
+.sl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sl-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink2);
+  letter-spacing: .4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sl-clear {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--ink3);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: all .12s;
+}
+.sl-clear:hover { color: var(--red); background: var(--red-l); }
+
+/* 統合入力欄 */
+.sl-combo-wrap { margin-bottom: 10px; }
+.sl-combo-box {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper);
+  box-shadow: var(--sh);
+  transition: border-color .12s;
+  margin-bottom: 5px;
+}
+.sl-combo-box:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(58,107,82,.08);
+}
+.sl-combo-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: transparent;
+  min-width: 0;
+}
+.sl-combo-input::placeholder { color: var(--ink3); }
+.sl-add-btn {
+  padding: 0 14px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .12s;
+  white-space: nowrap;
+}
+.sl-add-btn:hover { background: #2d5640; }
+.sl-combo-hint {
+  font-size: 11px;
+  color: var(--ink3);
+  padding-left: 2px;
+}
+
+/* リスト本体 */
+.sl-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--sh);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.sl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--rule);
+  transition: background .1s;
+}
+.sl-item:last-child { border-bottom: none; }
+.sl-item.checked { background: var(--bg); }
+.sl-check {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--rule2);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--paper);
+  transition: all .12s;
+  font-size: 11px;
+}
+.sl-check.checked { background: var(--green); border-color: var(--green); color: #fff; }
+.sl-item-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sl-item.checked .sl-item-text { color: var(--ink3); text-decoration: line-through; }
+.sl-item-store { font-size: 11px; color: var(--ink3); white-space: nowrap; flex-shrink: 0; }
+.sl-del {
+  background: none;
+  border: none;
+  color: var(--ink3);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all .12s;
+}
+.sl-del:hover { color: var(--red); background: var(--red-l); }
+.sl-empty { padding: 20px; text-align: center; color: var(--ink3); font-size: 13px; }
+
+/* スマホ：上下配置に切り替え */
+@media (max-width: 700px) {
+  .top-layout {
+    grid-template-columns: 1fr;
+  }
+  .top-right {
+    position: static;
+    order: -1; /* スマホでは買い物リストを上に */
+  }
+  .sl-list { max-height: 40vh; }
+}
+
+/* ════════════════════════════════
+   一覧表示（行ベース）共通
+════════════════════════════════ */
+.list-header {
+  display: grid;
+  grid-template-columns: 1fr 90px 80px 90px 90px 90px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid var(--rule);
+  margin-bottom: 0;
+}
+.list-rows { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; box-shadow: var(--sh); }
+.list-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 80px 90px 90px 90px;
+  align-items: center;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background .1s;
+  gap: 0;
+}
+.list-row:last-child { border-bottom: none; }
+.list-row:hover { background: var(--bg); }
+.list-row:hover .row-name { color: var(--green); }
+
+/* セル */
+.row-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 10px;
+  transition: color .1s;
+}
+.row-store { font-size: 12px; color: var(--ink2); }
+.row-price { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--ink); }
+.row-amount { font-size: 12px; color: var(--ink2); }
+.row-up { font-family: var(--mono); font-size: 12px; color: var(--green); }
+.row-cat { font-size: 11px; }
+
+/* タグ */
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.tag-main   { background: var(--blue-l);   color: var(--blue); }
+.tag-sub    { background: var(--orange-l); color: var(--orange); }
+.tag-store  { background: var(--purple-l); color: var(--purple); }
+
+/* 結果フィルターバー */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.fl  { font-size: 12px; color: var(--ink3); }
+.fsl { padding: 5px 9px; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; font-family: inherit; background: var(--paper); color: var(--ink); outline: none; cursor: pointer; }
+.fsl:focus { border-color: var(--green); }
+.fsl-wide { min-width: 100px; max-width: 200px; }
+.btn-reset {
+  padding: 4px 9px;
+  border: 1px solid var(--rule2);
+  border-radius: 6px;
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--ink3);
+  font-family: inherit;
+  transition: all .12s;
+}
+.btn-reset:hover { background: var(--bg); color: var(--ink2); }
+.result-count { font-size: 12px; color: var(--ink3); margin-left: auto; }
+
+/* 空状態 */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ink3);
+  font-size: 14px;
+}
+.cmp-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 14px;
+  color: var(--ink3);
+}
+.cmp-prompt-icon { font-size: 40px; opacity: .5; }
+.cmp-prompt-text { font-size: 14px; }
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.list-header span[id$="-up-header"]:hover { color: var(--ink); }
+.list-header span[id$="-up-header"] { transition: color .12s; }
+
+/* ════════════════════════════════
+   登録・編集フォーム
+════════════════════════════════ */
+.form-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 9px; padding: 24px; box-shadow: var(--sh); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg.s2 { grid-column: 1/-1; }
+label { font-size: 12px; font-weight: 700; color: var(--ink2); letter-spacing: .2px; }
+label .req { color: var(--orange); margin-left: 2px; }
+input[type=text], input[type=number], select, textarea {
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--paper);
+  outline: none;
+  transition: border-color .12s, box-shadow .12s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(58,107,82,.09);
+}
+textarea { resize: vertical; min-height: 72px; }
+.amt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* 単価プレビュー */
+.up-preview {
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  background: var(--paper2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all .2s;
+  font-size: 13px;
+}
+.up-preview.active { border-color: var(--green); background: var(--green-l); }
+.up-lbl { color: var(--ink3); }
+.up-lbl.active { color: var(--green); font-weight: 600; }
+.up-num { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--green); }
+
+/* フォームボタン行 */
+.form-actions { display: flex; gap: 9px; margin-top: 8px; align-items: center; }
+.btn-primary {
+  padding: 9px 22px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .12s, transform .12s;
+}
+.btn-primary:hover { background: #2d5640; transform: translateY(-1px); }
+.btn-sec {
+  padding: 8px 15px;
+  background: var(--paper2);
+  color: var(--ink2);
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+.btn-sec:hover { border-color: var(--rule2); }
+.save-msg { font-size: 13px; color: var(--green); font-weight: 600; display: none; }
+
+/* 編集モード標識 */
+.edit-banner {
+  display: none;
+  background: #fff8e8;
+  border: 1px solid #e8c860;
+  border-radius: 7px;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: #7a6010;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.edit-banner.show { display: flex; align-items: center; gap: 8px; }
+
+/* ════════════════════════════════
+   詳細モーダル
+════════════════════════════════ */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.32);
+  z-index: 500;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 16px 20px;
+  overflow-y: auto;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--paper);
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,.18);
+  width: 100%;
+  max-width: 440px;
+  padding: 26px;
+  position: relative;
+  flex-shrink: 0;
+  margin: auto;
+}
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: var(--bg); border: none; border-radius: 6px;
+  width: 28px; height: 28px;
+  font-size: 14px; cursor: pointer; color: var(--ink2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s;
+}
+.modal-close:hover { background: var(--red-l); color: var(--red); }
+.modal-name { font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.45; padding-right: 36px; }
+.modal-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.modal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13.5px;
+  gap: 12px;
+}
+.modal-row:last-of-type { border-bottom: none; }
+.modal-key { color: var(--ink3); font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; white-space: nowrap; }
+.modal-val { font-weight: 500; text-align: right; word-break: break-all; }
+.modal-memo {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.btn-edit {
+  flex: 1;
+  padding: 9px;
+  background: var(--green-l);
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .12s;
+}
+.btn-edit:hover { background: var(--green); color: #fff; }
+.btn-danger {
+  flex: 1;
+  padding: 9px;
+  background: var(--red-l);
+  color: var(--red);
+  border: 1px solid var(--red);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .12s;
+}
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+
+/* 比較ページ専用フィルターバー */
+.cmp-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.cmp-filter-left  { flex: 1; }
+.cmp-sub-sel      { width: 100%; padding: 7px 12px; font-size: 13px; }
+.cmp-filter-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.cmp-sort-sel     { padding: 4px 7px; font-size: 11px; color: var(--ink3); border-color: var(--rule); background: transparent; max-width: 90px; }
+.cmp-sort-sel:focus { border-color: var(--green); color: var(--ink); }
+.btn-add-inline {
+  padding: 5px 10px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s;
+}
+.btn-add-inline:hover { background: #2d5640; }
+
+/* ── ★ お気に入り ── */
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+  opacity: .35;
+  transition: opacity .12s, transform .12s;
+  flex-shrink: 0;
+}
+.star-btn:hover   { opacity: .7; transform: scale(1.2); }
+.star-btn.starred { opacity: 1; }
+.row-starred  { background: #fffbee !important; }
+.cmc-starred  { background: #fffbee; }
+tr.row-starred td { background: #fffbee; }
+
+/* ════════════════════════════════
+   比較画面（前回をほぼ維持）
+════════════════════════════════ */
+.cmp-group { margin-bottom: 28px; }
+.cmp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--rule);
+}
+.cmp-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.cmp-count { font-size: 12px; color: var(--ink3); }
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cmp-table th {
+  text-align: left; padding: 7px 12px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--ink3); border-bottom: 1.5px solid var(--rule); white-space: nowrap;
+}
+.cmp-table td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+.cmp-table tr:last-child td { border-bottom: none; }
+.cmp-table tr:hover td { background: var(--bg); }
+/* word-break:break-all を削除し overflow-wrap のみに — 2文字縦落ち防止 */
+.cmp-table .td-name { font-weight: 600; font-size: 13px; max-width: 220px; overflow-wrap: break-word; }
+.mono { font-family: var(--mono); }
+.best-p { color: var(--green); font-weight: 700; }
+.best-u { color: var(--green); font-weight: 700; }
+.worst-u { color: var(--orange); }
+.cmp-bar-cell { width: 100px; }
+.cmp-bar-bg { height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.cmp-bar-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width .4s; }
+.cmp-bar-fill.w { background: var(--orange); }
+.best-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; background: var(--green-l); color: var(--green); margin-left: 5px; white-space: nowrap; }
+.cmp-memo { max-width: 160px; font-size: 12px; color: var(--ink2); word-break: break-all; }
+.cmp-del { background: none; border: none; font-size: 13px; cursor: pointer; color: var(--ink3); padding: 3px 5px; border-radius: 4px; }
+.cmp-del:hover { color: var(--red); background: var(--red-l); }
+.cmp-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; overflow-x: auto; box-shadow: var(--sh); }
+
+/* ── スマホ用 比較カード ── */
+/* PC では非表示、スマホで表示切り替えは @media 内で制御 */
+.cmp-mobile { display: none; background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--sh); }
+.cmc {                              /* 1商品 = 1カード行 */
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.cmc:last-child { border-bottom: none; }
+.cmc-name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+  margin-bottom: 9px;
+  color: var(--ink);
+  /* 折り返しは単語境界 or スペースで — 2文字縦落ち防止 */
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.cmc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cmc-store {
+  display: inline-block;
+  max-width: 72px;          /* 半角6文字相当 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--purple-l);
+  color: var(--purple);
+  font-size: 11px;
+  font-weight: 700;
+}
+.cmc-price {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cmc-price.bp { color: var(--green); }
+.cmc-amount { font-size: 12px; color: var(--ink3); white-space: nowrap; }
+.cmc-up {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.cmc-up.bu { color: var(--green); }
+.cmc-up.wu { color: var(--orange); }
+.cmc-memo {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+/* ── ハイライト ── */
+.hl { background: #fff3a0; border-radius: 2px; }
+
+/* ── レスポンシブ ── */
+@media (max-width: 640px) {
+  .list-header { display: none; }
+  .list-row { grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 2px; }
+  .row-store, .row-amount, .row-up, .row-cat { font-size: 11px; }
+  .row-price { font-size: 14px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .fg.s2 { grid-column: 1; }
+  nav .nb .nl { display: none; }
+  .home-title { font-size: 20px; }
+  /* 比較：テーブルを隠してカードへ */
+  .cmp-card   { display: none; }
+  .cmp-mobile { display: block; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="logo" onclick="goHome()">📓 買い物比較メモ</button>
+  <nav>
+    <button class="nb" onclick="goPage('compare',this)">📦 <span class="nl">商品名</span></button>
+    <button class="nb" onclick="goPage('store',this)">🏪 <span class="nl">店名</span></button>
+    <button class="nb" onclick="goPage('home',this)">🔍 <span class="nl">検索</span></button>
+    <button class="nb" onclick="goPage('list',this)">📋 <span class="nl">一覧</span></button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ════════ HOME ════════ -->
+<div id="page-home" class="page">
+  <div class="home-wrap">
+    <div class="home-title">買い物比較メモ</div>
+    <div class="home-sub">商品名・店名・カテゴリ・メモをまとめて検索できます</div>
+
+    <div class="search-box">
+      <input class="search-input" id="home-q" type="text"
+        placeholder="例：やさい　日焼け止め　Amazon　香りがいい…"
+        oninput="homeSearch()" onkeydown="if(event.key==='Enter')homeSearch()">
+      <button class="search-btn" onclick="homeSearch()">検索</button>
+    </div>
+
+    <div class="home-chips" id="home-chips"></div>
+    <div class="home-hint" id="home-hint"></div>
+  </div>
+
+  <!-- 検索結果 -->
+  <div id="home-result-area" style="display:none">
+    <div class="filter-bar">
+      <span class="fl">絞り込み：</span>
+      <select class="fsl fsl-wide" id="home-sub" onchange="homeSearch()"><option value="">すべての比較カテゴリ</option></select>
+      <span class="fl">並び順：</span>
+      <select class="fsl" id="home-sort" onchange="homeSortChange()">
+        <option value="up-asc">単価 安い順</option>
+        <option value="up-desc">単価 高い順</option>
+        <option value="price-asc">価格 安い順</option>
+        <option value="new">新しい順</option>
+      </select>
+      <button class="btn-reset" onclick="resetHome()">✕ リセット</button>
+      <span class="result-count" id="home-count"></span>
+    </div>
+    <div class="list-header">
+      <span>商品名</span><span>店名</span><span>価格</span><span>量</span><span id="home-up-header" onclick="toggleHomeUpSort()" style="cursor:pointer;user-select:none">単価 <span id="home-up-arrow">↑</span></span><span>カテゴリ</span>
+    </div>
+    <div class="list-rows" id="home-list"></div>
+  </div>
+</div>
+
+<!-- ════════ REGISTER / EDIT ════════ -->
+<div id="page-add" class="page">
+  <div class="sec-title" id="add-title">➕ 商品を登録する</div>
+  <div class="edit-banner" id="edit-banner">✏️ 編集モード：登録済みのデータを修正して「更新する」を押してください。</div>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="fg s2">
+        <label>商品名 <span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="例：木綿豆腐、SKIN AQUA 日焼け止め SPF50+">
+      </div>
+      <div class="fg">
+        <label>店名 <span class="req">*</span></label>
+        <input type="text" id="f-store" placeholder="例：セブン、Amazon、カインズ" list="dl-store">
+        <datalist id="dl-store"></datalist>
+      </div>
+      <div class="fg">
+        <label>大カテゴリ <span class="req">*</span></label>
+        <input type="text" id="f-main" placeholder="例：食品、コスメ、日用品" list="dl-main">
+        <datalist id="dl-main"></datalist>
+      </div>
+      <div class="fg s2">
+        <label>比較カテゴリ <span class="req">*</span></label>
+        <input type="text" id="f-sub" placeholder="例：豆腐、日焼け止め、マスカラ" list="dl-sub">
+        <datalist id="dl-sub"></datalist>
+      </div>
+      <div class="fg">
+        <label>価格（円）<span class="req">*</span></label>
+        <input type="number" id="f-price" placeholder="例：149" min="0" oninput="calcPreview()">
+      </div>
+      <div class="fg">
+        <label>量 × 単位（任意）</label>
+        <div class="amt-row">
+          <input type="number" id="f-amount" placeholder="例：450" min="0" oninput="calcPreview()">
+          <input type="text" id="f-unit" placeholder="g / ml / 個 / 本" list="dl-unit" oninput="calcPreview()">
+          <datalist id="dl-unit">
+            <option value="g"><option value="ml"><option value="個"><option value="本"><option value="枚"><option value="袋">
+          </datalist>
+        </div>
+      </div>
+      <div class="fg s2">
+        <label>単価プレビュー（g または ml のとき自動計算）</label>
+        <div class="up-preview" id="up-box">
+          <span class="up-lbl" id="up-lbl">価格と量（g / ml）を入力すると自動計算されます</span>
+          <span class="up-num" id="up-num"></span>
+        </div>
+      </div>
+      <div class="fg s2">
+        <label>メモ（任意）</label>
+        <textarea id="f-memo" placeholder="例：香りがいい、出にくい時がある、コスパが高い…"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-primary" id="save-btn" onclick="saveItem()">💾 登録する</button>
+      <button class="btn-sec" onclick="cancelEdit()">キャンセル</button>
+      <span class="save-msg" id="save-msg">✅ 登録しました！</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ LIST ════════ -->
+<div id="page-list" class="page">
+  <div class="sec-title">📋 商品一覧</div>
+  <div class="filter-bar">
+    <span class="fl">絞り込み：</span>
+    <input class="fsl" type="text" id="list-q" placeholder="キーワード…" oninput="renderList()" style="width:130px">
+    <select class="fsl fsl-wide" id="list-main" onchange="listMainChange()"><option value="">すべての大カテゴリ</option></select>
+    <select class="fsl fsl-wide" id="list-sub"  onchange="renderList()"><option value="">すべての比較カテゴリ</option></select>
+    <select class="fsl" id="list-sort" onchange="renderList()">
+      <option value="up-asc" selected>単価 安い順</option>
+      <option value="up-desc">単価 高い順</option>
+      <option value="price-asc">価格 安い順</option>
+      <option value="price-desc">価格 高い順</option>
+      <option value="new">新しい順</option>
+      <option value="name">商品名順</option>
+    </select>
+    <button class="btn-reset" onclick="resetList()">✕ リセット</button>
+    <span class="result-count" id="list-count"></span>
+  </div>
+  <div class="list-header">
+    <span>商品名</span><span>店名</span><span>価格</span><span>量</span><span id="list-up-header" onclick="toggleListUpSort()" style="cursor:pointer;user-select:none">単価 <span id="list-up-arrow">↑</span></span><span>カテゴリ</span>
+  </div>
+  <div class="list-rows" id="list-rows">
+    <div class="empty-state"><div class="empty-icon">📭</div>データがありません</div>
+  </div>
+</div>
+
+<!-- ════════ COMPARE = 商品名トップページ ════════ -->
+<div id="page-compare" class="page active">
+  <div class="top-layout">
+
+    <!-- 左：カテゴリ別商品比較 -->
+    <div class="top-left">
+      <div class="sec-title">📦 カテゴリ別 商品</div>
+      <div class="cmp-filter-bar">
+        <div class="cmp-filter-left">
+          <select class="fsl cmp-sub-sel" id="cmp-sub" onchange="renderCompare()"><option value="">カテゴリを選択してください</option></select>
+        </div>
+        <div class="cmp-filter-right">
+          <select class="fsl cmp-sort-sel" id="cmp-sort" onchange="cmpSortChange()">
+            <option value="up-asc" selected>単価↑安</option>
+            <option value="up-desc">単価↓高</option>
+            <option value="price-asc">価格↑安</option>
+            <option value="new">新しい順</option>
+          </select>
+          <button class="btn-reset" onclick="resetCompare()">✕</button>
+          <button class="btn-add-inline" onclick="goPageFromFilter('add')">＋登録</button>
+        </div>
+      </div>
+      <select id="cmp-main" style="display:none" onchange="cmpMainChange()"><option value="">すべて</option></select>
+      <div id="cmp-container"></div>
+    </div>
+
+    <!-- 右：今日の買い物リスト -->
+    <div class="top-right">
+      <div class="sl-header">
+        <span class="sl-title">🛒 今日の買い物リスト</span>
+        <button class="sl-clear" onclick="slClearAll()">全部消す</button>
+      </div>
+
+      <!-- 統合入力欄（選択 + 自由入力） -->
+      <div class="sl-combo-wrap">
+        <div class="sl-combo-box">
+          <input class="sl-combo-input" id="sl-combo-input" type="text"
+            placeholder="商品名を入力 または 選んで追加…"
+            list="sl-combo-list"
+            autocomplete="off"
+            oninput="slComboInput()"
+            onkeydown="if(event.key==='Enter')slComboAdd()">
+          <datalist id="sl-combo-list"></datalist>
+          <button class="sl-add-btn" onclick="slComboAdd()">＋</button>
+        </div>
+        <div class="sl-combo-hint">登録済み商品を選ぶか、そのまま入力して追加</div>
+      </div>
+
+      <!-- リスト本体 -->
+      <div class="sl-list" id="sl-list">
+        <div class="sl-empty">まだ何も追加されていません</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════ STORE（店名から探す） ════════ -->
+<div id="page-store" class="page">
+  <div class="sec-title">🏪 店名から探す</div>
+  <div class="cmp-filter-bar">
+    <div class="cmp-filter-left">
+      <select class="fsl cmp-sub-sel" id="store-sel" onchange="renderStore()"><option value="">店名を選択してください</option></select>
+    </div>
+    <div class="cmp-filter-right">
+      <select class="fsl cmp-sort-sel" id="store-sort" onchange="renderStore()">
+        <option value="up-asc" selected>単価↑安</option>
+        <option value="up-desc">単価↓高</option>
+        <option value="price-asc">価格↑安</option>
+        <option value="new">新しい順</option>
+      </select>
+      <button class="btn-reset" onclick="resetStore()">✕</button>
+      <button class="btn-add-inline" onclick="goPageFromFilter('add')">＋登録</button>
+    </div>
+  </div>
+  <div id="store-container"></div>
+</div>
+
+</main>
+
+<!-- ════════ 詳細モーダル ════════ -->
+<div class="modal-bg" id="modal-bg" onclick="bgClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div style="display:flex;align-items:flex-start;gap:8px;padding-right:32px">
+      <button id="m-star" class="star-btn" onclick="toggleStarModal()" style="font-size:22px;margin-top:2px">☆</button>
+      <div class="modal-name" id="m-name"></div>
+    </div>
+    <div class="modal-tags"  id="m-tags"></div>
+    <div id="m-rows"></div>
+    <div class="modal-memo"  id="m-memo" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn-edit"   onclick="editFromModal()">✏️ 編集</button>
+      <button class="btn-danger" onclick="deleteModal()">🗑 削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     JavaScript
+════════════════════════════════ -->
+<script>
+// ============================================================
+// DATA
+// ============================================================
+// 【データの場所】SAMPLE_DATA 配列を編集してください。
+// 【各フィールドの意味】
+//   productName  : 商品名（必須）
+//   store        : 店名（必須）
+//   mainCategory : 大カテゴリ — 食品 / コスメ / 日用品 など（必須）
+//   subCategory  : 比較カテゴリ — 豆腐 / 日焼け止め など（必須）
+//   price        : 価格・円（必須）
+//   amount       : 量（省略可）
+//   unit         : 単位 g / ml / 個 / 本 など（省略可）
+//   memo         : メモ（省略可）
+// ※ unit が g または ml のとき unitPrice を自動計算
+// ============================================================
+const SAMPLE_DATA = [
+  // ── 食品：カット野菜 ──
+  { productName:'野菜セット',                                                                              store:'セブン',        mainCategory:'食品', subCategory:'カット野菜',           price: 127, amount:260,  unit:'g',  memo:'少し量が多い' },
+  { productName:'ニラもやし炒め',                                                                           store:'ファミマ',       mainCategory:'食品', subCategory:'カット野菜',           price: 116, amount:225,  unit:'g',  memo:'ポイントがたまる' },
+  // ── 食品：豆腐 ──
+  { productName:'国産木綿豆腐',                                                                             store:'セブン',        mainCategory:'食品', subCategory:'豆腐',                 price: 149, amount:450,  unit:'g',  memo:'' },
+  { productName:'カナダorアメリカ産 木綿豆腐',                                                              store:'マックスバリュ', mainCategory:'食品', subCategory:'豆腐',                 price:  88, amount:450,  unit:'g',  memo:'' },
+  { productName:'カナダorアメリカ産 木綿豆腐',                                                              store:'ファミマ',       mainCategory:'食品', subCategory:'豆腐',                 price: 128, amount:450,  unit:'g',  memo:'' },
+  // ── 食品：卵 ──
+  { productName:'卵',                                                                                      store:'マックスバリュ', mainCategory:'食品', subCategory:'卵',                   price: 258, amount:10,   unit:'個', memo:'' },
+  // ── 食品：そば ──
+  { productName:'そば',                                                                                    store:'マックスバリュ', mainCategory:'食品', subCategory:'そば',                 price: 246, amount:400,  unit:'g',  memo:'' },
+  { productName:'そば',                                                                                    store:'ファミマ',       mainCategory:'食品', subCategory:'そば',                 price: 248, amount:300,  unit:'g',  memo:'' },
+  // ── 食品：米 ──
+  { productName:'玄米 新潟県産こしいぶき 2kg 令和7年産',                                                    store:'Amazon',        mainCategory:'食品', subCategory:'米',                   price:1609, amount:2000, unit:'g',  memo:'' },
+  { productName:'パールライス 秋田県産 玄米 あきたこまち 2kg',                                               store:'Amazon',        mainCategory:'食品', subCategory:'米',                   price:1757, amount:2000, unit:'g',  memo:'' },
+  { productName:'パールライス 新潟県産 玄米 コシヒカリ 2kg',                                                 store:'Amazon',        mainCategory:'食品', subCategory:'米',                   price:1891, amount:2000, unit:'g',  memo:'' },
+  { productName:'ミツハシ 【玄米】 美食玄米 900g ( 岩手県産 ひとめぼれ 使用 )',                               store:'Amazon',        mainCategory:'食品', subCategory:'米',                   price:1300, amount:900,  unit:'g',  memo:'' },
+  { productName:'もち',                                                                                    store:'マックスバリュ', mainCategory:'食品', subCategory:'米',                   price: 645, amount:700,  unit:'g',  memo:'' },
+  // ── 食品：ナッツ ──
+  { productName:'素焼きミックスナッツ',                                                                      store:'ファミマ',       mainCategory:'食品', subCategory:'ナッツ',               price: 398, amount:70,   unit:'g',  memo:'' },
+  { productName:'ナチュラルナッツ 個包装 7袋',                                                              store:'スギ薬局',       mainCategory:'食品', subCategory:'ナッツ',               price: 429, amount:70,   unit:'g',  memo:'' },
+  // ── 食品：ごま ──
+  { productName:'すりごま',                                                                                 store:'スギ薬局',       mainCategory:'食品', subCategory:'ごま',                 price: 127, amount:55,   unit:'g',  memo:'' },
+  // ── 食品：海藻類 ──
+  { productName:'あおさ',                                                                                   store:'スギ薬局',       mainCategory:'食品', subCategory:'海藻類',               price: 127, amount:8,    unit:'g',  memo:'' },
+  // ── 食品：パスタソース ──
+  { productName:'ママー パスタキッチン カルボナーラ',                                                         store:'マックスバリュ', mainCategory:'食品', subCategory:'パスタソース',         price: 158, amount:1,    unit:'袋', memo:'湯せん' },
+  // ── 食品：惣菜 ──
+  { productName:'コロッケ（小）2個',                                                                        store:'マックスバリュ', mainCategory:'食品', subCategory:'惣菜',                 price: 128, amount:2,    unit:'個', memo:'' },
+  // ── 食品：チルド菓子 ──
+  { productName:'牛乳と卵のエクレア',                                                                       store:'マックスバリュ', mainCategory:'食品', subCategory:'チルド菓子',           price:  88, amount:55,   unit:'g',  memo:'' },
+  { productName:'シュークリーム',                                                                           store:'スギ薬局',       mainCategory:'食品', subCategory:'チルド菓子',           price: 105, amount:1,    unit:'個', memo:'' },
+  // ── 食品：カフェインレスコーヒー ──
+  { productName:'ネスカフェ ゴールドブレンド カフェインレス(40杯分) 瓶',                                      store:'Amazon',        mainCategory:'食品', subCategory:'カフェインレスコーヒー', price:1219, amount:80,   unit:'g',  memo:'' },
+  { productName:'ネスカフェ ゴールドブレンド カフェインレス(40杯分) 瓶',                                      store:'スギ薬局',       mainCategory:'食品', subCategory:'カフェインレスコーヒー', price:1382, amount:80,   unit:'g',  memo:'' },
+  // ── 食品：スティック飲料 ──
+  { productName:'ネスレ ふわラテ 香るミルクティー 26P',                                                      store:'Amazon',        mainCategory:'食品', subCategory:'スティック飲料',       price: 519, amount:26,   unit:'本', memo:'' },
+  { productName:'ネスレ ふわラテ 香るミルクティー 26P',                                                      store:'スギ薬局',       mainCategory:'食品', subCategory:'スティック飲料',       price: 537, amount:26,   unit:'本', memo:'' },
+  { productName:'ネスレ ふわラテ ミルクココア 20P',                                                          store:'マックスバリュ', mainCategory:'食品', subCategory:'スティック飲料',       price: 516, amount:20,   unit:'本', memo:'' },
+  { productName:'ネスレ ふわラテ ミルクココア 20P',                                                          store:'スギ薬局',       mainCategory:'食品', subCategory:'スティック飲料',       price: 537, amount:20,   unit:'本', memo:'' },
+  { productName:'ネスカフェ ふわラテ ほっこりカフェインレス 20P',                                             store:'スギ薬局',       mainCategory:'食品', subCategory:'スティック飲料',       price: 537, amount:20,   unit:'本', memo:'' },
+  // ── 食品：調味料 ──
+  { productName:'七味唐辛子',                                                                              store:'Can★Do',        mainCategory:'食品', subCategory:'調味料',               price: 108, amount:15,   unit:'g',  memo:'' },
+  { productName:'七味唐辛子',                                                                              store:'スギ薬局',       mainCategory:'食品', subCategory:'調味料',               price: 159, amount:15,   unit:'g',  memo:'' },
+  // ── 食品：お菓子 ──
+  { productName:'マカダミアチョコ',                                                                         store:'コクミン薬局',   mainCategory:'食品', subCategory:'お菓子',               price: 257, amount:9,    unit:'個', memo:'' },
+  { productName:'マカダミアチョコ',                                                                         store:'マックスバリュ', mainCategory:'食品', subCategory:'お菓子',               price: 300, amount:9,    unit:'個', memo:'' },
+  // ── コスメ：日焼け止め ──
+  { productName:'カインズ UVスプレー SPF50+ PA++++ 250g 顔 髪 からだ',                                       store:'カインズ',       mainCategory:'コスメ', subCategory:'日焼け止め',         price: 980, amount:250,  unit:'g',  memo:'手で塗らなくていい' },
+  { productName:'SKIN AQUA トーンアップ 日焼け止め サボンの香り ラベンダー SPF50+ PA++++',                    store:'Amazon',        mainCategory:'コスメ', subCategory:'日焼け止め',         price: 600, amount:80,   unit:'ml', memo:'香りがいい' },
+  { productName:'セザンヌ 皮脂テカリ防止下地 ライトブルー',                                                   store:'Amazon',        mainCategory:'コスメ', subCategory:'日焼け止め',         price: 660, amount:30,   unit:'ml', memo:'' },
+  // ── コスメ：アイライナー ──
+  { productName:'UZU アイオープニングライナー [ブラウンブラック] リキッドアイライナー',                         store:'Amazon',        mainCategory:'コスメ', subCategory:'アイライナー',       price:1100, amount:1,    unit:'本', memo:'出にくい時がある' },
+  { productName:'KATE スーパーシャープライナーEX4.0 (ショート筆) BK-1 ホルダー・レフィルセット',               store:'マツキヨ',       mainCategory:'コスメ', subCategory:'アイライナー',       price:1430, amount:1,    unit:'本', memo:'細く書きやすい' },
+  { productName:'KATE(ケイト) スーパーシャープライナーEX4.0 BK-1',                                           store:'Amazon',        mainCategory:'コスメ', subCategory:'アイライナー',       price:1430, amount:1,    unit:'本', memo:'インクが出すぎるときがある' },
+  // ── コスメ：マスカラ ──
+  { productName:'セザンヌ グロウコートマスカラ 01 シアーブラック 6.0g',                                        store:'Amazon',        mainCategory:'コスメ', subCategory:'マスカラ',           price: 660, amount:1,    unit:'本', memo:'' },
+  { productName:'MAYBELLINE マスカラ お湯オフ ラッシュニスタ N 01 ブラック',                                   store:'Amazon',        mainCategory:'コスメ', subCategory:'マスカラ',           price:1370, amount:1,    unit:'本', memo:'' },
+  { productName:'Milk Touch オールデイスキニー&ロング マスカラ (ブラック) お湯落ち フィルムマスカラ 繊維なし 超極細ブラシ', store:'Amazon', mainCategory:'コスメ', subCategory:'マスカラ',   price:1628, amount:1,    unit:'本', memo:'下睫毛にとても良い。少しダマになりやすい。' },
+  // ── コスメ：眉マスカラ ──
+  { productName:'rom&nd HAN ALL BROW CARA(02 マイルドウッディー)',                                          store:'Amazon',        mainCategory:'コスメ', subCategory:'眉マスカラ',         price:1210, amount:1,    unit:'本', memo:'' },
+  // ── コスメ：ボディローション ──
+  { productName:'ヴァセリン アドバンスドリペア ボディローション 600ml',                                        store:'Amazon',        mainCategory:'コスメ', subCategory:'ボディローション',   price:1339, amount:600,  unit:'ml', memo:'' },
+  // ── 日用品 ──
+  { productName:'Dr.Scholl 靴専用 瞬間消臭×抗菌・防カビ 48時間消臭効果持続',                                  store:'Amazon',        mainCategory:'日用品', subCategory:'靴スプレー',         price: 745, amount:150,  unit:'ml', memo:'' },
+  { productName:'ナプキン 16個入り',                                                                        store:'スギ薬局',       mainCategory:'日用品', subCategory:'生理用品',           price: 437, amount:16,   unit:'個', memo:'' },
+  { productName:'ナプキン 16個入り',                                                                        store:'マツキヨ',       mainCategory:'日用品', subCategory:'生理用品',           price: 570, amount:16,   unit:'個', memo:'' },
+  // ── 美容 ──
+  { productName:'ヘアカット、ヘアカラー、白髪染め',                                                           store:'little×RINNE',  mainCategory:'美容',   subCategory:'美容',               price:7900, amount:1,    unit:'回', memo:'' },
+  { productName:'フット ネイルケア フットバス＋角質除去＋保湿トリートメント',                                    store:'リッシュ トロワ', mainCategory:'美容',  subCategory:'美容',               price:2200, amount:1,    unit:'回', memo:'' },
+];
+
+const SK = 'kaimono_v6';  // バージョンを上げてキャッシュをリセット
+let items = [];
+let _modalId  = null;   // 現在開いているモーダルのID
+let _editId   = null;   // 編集中のアイテムID（nullなら新規登録）
+
+// ── 初期ロード ──
+function load() {
+  try { const r = localStorage.getItem(SK); if (r) { items = JSON.parse(r); return; } } catch(e){}
+  items = SAMPLE_DATA.map((d, i) => ({ ...d, id: 's'+i, _ts: i }));
+  persist();
+}
+function persist() { localStorage.setItem(SK, JSON.stringify(items)); }
+load();
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function calcUP(price, amount, unit) {
+  if (!amount || amount <= 0 || !unit) return null;
+  // g・ml・個・本・枚・袋など、amountが数値であれば単価を計算する
+  return price / amount;
+}
+// 単価の表示ラベル用（"円/g"、"円/個" など）
+function upLabel(unit) { return '円/' + (unit || '単位'); }
+// 単価の数値フォーマット：g/mlは小数2桁、個/本など整数単位は整数表示
+function fmtUP(up, unit) {
+  if (up == null) return null;
+  const u = String(unit||'').trim().toLowerCase();
+  const isWeight = (u === 'g' || u === 'ml');
+  return isWeight ? up.toFixed(2) : Number.isInteger(up) ? String(up) : up.toFixed(1);
+}
+function fmtYen(n)   { return '¥' + Math.round(n).toLocaleString(); }
+function fmtN(n,d=2) { return n != null ? n.toFixed(d) : null; }
+function match(item, q) {
+  if (!q) return true;
+  const t = q.toLowerCase();
+  return ['productName','store','mainCategory','subCategory','memo'].some(k =>
+    (item[k]||'').toLowerCase().includes(t)
+  );
+}
+function hl(text, q) {
+  const e = esc(text);
+  if (!q) return e;
+  const eq = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return e.replace(new RegExp(esc(eq), 'gi'), m => `<span class="hl">${m}</span>`);
+}
+function uniq(arr) { return [...new Set(arr.filter(Boolean))]; }
+
+// ── 共通ソート関数 ──
+// key: 'up-asc' | 'up-desc' | 'price-asc' | 'price-desc' | 'new' | 'name'
+// 単価ルール：単価あり→安い順（昇順）、なし→末尾。同単価→価格→商品名
+function sortItems(data, key) {
+  return [...data].sort((a, b) => {
+    if (key === 'up-asc' || key === 'up-desc') {
+      const ua = calcUP(a.price, a.amount, a.unit);
+      const ub = calcUP(b.price, b.amount, b.unit);
+      // 単価なしは常に末尾
+      if (ua == null && ub == null) return tieBreak(a, b);
+      if (ua == null) return  1;
+      if (ub == null) return -1;
+      const dir = key === 'up-asc' ? 1 : -1;
+      if (ua !== ub) return dir * (ua - ub);
+      return tieBreak(a, b);
+    }
+    if (key === 'price-asc')  return (a.price||0) - (b.price||0) || tieBreak(a, b);
+    if (key === 'price-desc') return (b.price||0) - (a.price||0) || tieBreak(a, b);
+    if (key === 'name')       return (a.productName||'').localeCompare(b.productName||'');
+    // 'new'（デフォルト）
+    return (b._ts||0) - (a._ts||0);
+  });
+}
+function tieBreak(a, b) {
+  const pd = (a.price||0) - (b.price||0);
+  if (pd !== 0) return pd;
+  return (a.productName||'').localeCompare(b.productName||'');
+}
+
+// ホーム検索のソート状態（'up-asc' | 'up-desc' | 'price-asc' | 'new'）
+let homeSort = 'up-asc';
+function setDL(id, vals) {
+  document.getElementById(id).innerHTML = vals.map(v => `<option value="${esc(v)}">`).join('');
+}
+function fillSel(id, vals, ph) {
+  const el = document.getElementById(id);
+  const cur = el.value;
+  el.innerHTML = `<option value="">${ph}</option>` +
+    vals.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+  if ([...el.options].some(o => o.value === cur)) el.value = cur;
+}
+
+// ============================================================
+// ドロップダウン更新（全共通）
+// ============================================================
+function refreshDropdowns() {
+  const stores = uniq(items.map(i => i.store)).sort((a,b) => a.localeCompare(b, 'ja'));
+  const mains  = uniq(items.map(i => i.mainCategory)).sort();
+  const subs   = uniq(items.map(i => i.subCategory)).sort();
+
+  setDL('dl-store', stores);
+  setDL('dl-main',  mains);
+  setDL('dl-sub',   subs);
+
+  fillSel('list-main', mains,  'すべての大カテゴリ');
+  fillSel('list-sub',  subs,   'すべての比較カテゴリ');
+  fillSel('cmp-main',  mains,  'すべて');
+  fillSel('cmp-sub',   subs,   'カテゴリを選択してください');
+  fillSel('home-sub',  subs,   'すべての比較カテゴリ');
+  fillSel('store-sel', stores, '店名を選択してください');
+
+  // ホームチップ
+  const ch = document.getElementById('home-chips');
+  ch.innerHTML = ['すべて', ...mains].map(m =>
+    `<button class="chip${m==='すべて'?' active':''}" onclick="chipClick('${esc(m)}',this)">${esc(m)}</button>`
+  ).join('');
+
+  // 件数ヒント
+  document.getElementById('home-hint').innerHTML = `登録件数：<b>${items.length}</b>件`;
+  // 買い物リストの商品プルダウンも更新
+  slRefreshSelect();
+}
+
+// ============================================================
+// ナビゲーション
+// ============================================================
+function goPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active');
+  if (page === 'home')    renderHome();
+  if (page === 'list')    renderList();
+  if (page === 'compare') renderCompare();
+  if (page === 'store')   renderStore();
+}
+
+// navボタンを経由せず直接ページへ（登録ページなど）
+function goPageFromFilter(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function chipClick(cat, el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('home-q').value = cat === 'すべて' ? '' : cat;
+  document.getElementById('home-sub').value = '';
+  homeSearch();
+}
+
+function homeSearch() {
+  const q   = document.getElementById('home-q').value.trim();
+  const sub = document.getElementById('home-sub').value;
+  const ra  = document.getElementById('home-result-area');
+  const hw  = document.querySelector('.home-wrap');
+
+  if (!q && !sub) {
+    ra.style.display = 'none';
+    hw.style.paddingBottom = '40px';
+    return;
+  }
+  ra.style.display = 'block';
+  hw.style.paddingBottom = '8px';
+
+  const qf = items.filter(i => match(i, q));
+  const qSubs = uniq(qf.map(i => i.subCategory)).sort();
+  fillSel('home-sub', qSubs, 'すべての比較カテゴリ');
+  document.getElementById('home-sub').value = sub;
+
+  let data = sub ? qf.filter(i => i.subCategory === sub) : qf;
+  data = sortItems(data, homeSort);
+  updateHomeUpArrow();
+
+  document.getElementById('home-count').textContent = data.length + '件';
+  document.getElementById('home-list').innerHTML = data.length
+    ? data.map(i => rowHTML(i, q)).join('')
+    : '<div class="empty-state"><div class="empty-icon">🔍</div>該当する商品が見つかりません</div>';
+}
+
+function homeSortChange() {
+  homeSort = document.getElementById('home-sort').value;
+  homeSearch();
+}
+
+function toggleHomeUpSort() {
+  homeSort = homeSort === 'up-asc' ? 'up-desc' : 'up-asc';
+  document.getElementById('home-sort').value = homeSort;
+  homeSearch();
+}
+
+function updateHomeUpArrow() {
+  const el = document.getElementById('home-up-arrow');
+  if (!el) return;
+  if (homeSort === 'up-asc')  { el.textContent = '↑'; el.style.color = 'var(--green)'; }
+  else if (homeSort === 'up-desc') { el.textContent = '↓'; el.style.color = 'var(--orange)'; }
+  else { el.textContent = ''; }
+}
+
+function resetHome() {
+  document.getElementById('home-q').value = '';
+  document.getElementById('home-sub').value = '';
+  document.getElementById('home-sort').value = 'up-asc';
+  homeSort = 'up-asc';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.chip')?.classList.add('active');
+  homeSearch();
+}
+
+function renderHome() {
+  refreshDropdowns();
+  homeSearch();
+}
+
+// ============================================================
+// 行 HTML（共通：ホーム＆一覧で使用）
+// ============================================================
+function rowHTML(item, q) {
+  const up = calcUP(item.price, item.amount, item.unit);
+  const starred = item.starred ? 'starred' : '';
+  return `<div class="list-row ${starred ? 'row-starred' : ''}" onclick="openModal('${item.id}')">
+    <button class="star-btn ${starred}" onclick="event.stopPropagation();toggleStar('${item.id}')" title="お気に入り">${item.starred ? '★' : '☆'}</button>
+    <span class="row-name" title="${esc(item.productName)}">${hl(item.productName, q)}</span>
+    <span class="row-store">${hl(item.store, q)}</span>
+    <span class="row-price">${fmtYen(item.price)}</span>
+    <span class="row-amount">${item.amount ? item.amount+(item.unit||'') : '—'}</span>
+    <span class="row-up">${up != null ? fmtUP(up,item.unit)+upLabel(item.unit) : '—'}</span>
+    <span class="row-cat">${item.subCategory ? `<span class="tag tag-sub">${esc(item.subCategory)}</span>` : ''}</span>
+  </div>`;
+}
+
+// ============================================================
+// LIST
+// ============================================================
+function listMainChange() {
+  const main = document.getElementById('list-main').value;
+  const subs = uniq(items.filter(i => !main || i.mainCategory===main).map(i => i.subCategory)).sort();
+  fillSel('list-sub', subs, 'すべての比較カテゴリ');
+  renderList();
+}
+
+function renderList() {
+  const q    = document.getElementById('list-q').value.trim();
+  const main = document.getElementById('list-main').value;
+  const sub  = document.getElementById('list-sub').value;
+  const sort = document.getElementById('list-sort').value;
+
+  let data = items.filter(i =>
+    (!main || i.mainCategory === main) &&
+    (!sub  || i.subCategory  === sub)  &&
+    match(i, q)
+  );
+  data = sortItems(data, sort);
+  updateListUpArrow(sort);
+
+  document.getElementById('list-count').textContent = data.length + '件';
+  document.getElementById('list-rows').innerHTML = data.length
+    ? data.map(i => rowHTML(i, q)).join('')
+    : '<div class="empty-state"><div class="empty-icon">📭</div>該当する商品がありません</div>';
+}
+
+function toggleListUpSort() {
+  const sel = document.getElementById('list-sort');
+  sel.value = sel.value === 'up-asc' ? 'up-desc' : 'up-asc';
+  renderList();
+}
+
+function updateListUpArrow(sort) {
+  const el = document.getElementById('list-up-arrow');
+  if (!el) return;
+  if (sort === 'up-asc')  { el.textContent = '↑'; el.style.color = 'var(--green)'; }
+  else if (sort === 'up-desc') { el.textContent = '↓'; el.style.color = 'var(--orange)'; }
+  else { el.textContent = ''; }
+}
+
+function resetList() {
+  document.getElementById('list-q').value = '';
+  document.getElementById('list-main').value = '';
+  document.getElementById('list-sub').value = '';
+  document.getElementById('list-sort').value = 'up-asc';
+  renderList();
+}
+
+// ============================================================
+// COMPARE（前回をほぼ維持）
+// ============================================================
+function cmpMainChange() {
+  const main = document.getElementById('cmp-main').value;
+  const subs = uniq(items.filter(i => !main || i.mainCategory===main).map(i => i.subCategory)).sort();
+  fillSel('cmp-sub', subs, 'すべて');
+  renderCompare();
+}
+
+// 比較ページのソート状態
+let cmpSort = 'up-asc';
+
+function cmpSortChange() {
+  cmpSort = document.getElementById('cmp-sort').value;
+  renderCompare();
+}
+
+function toggleCmpUpSort() {
+  cmpSort = cmpSort === 'up-asc' ? 'up-desc' : 'up-asc';
+  document.getElementById('cmp-sort').value = cmpSort;
+  renderCompare();
+}
+
+function renderCompare() {
+  const main   = document.getElementById('cmp-main').value;
+  const selSub = document.getElementById('cmp-sub').value;
+  const con    = document.getElementById('cmp-container');
+  const sortRight = document.querySelector('.cmp-filter-right');
+
+  // カテゴリ未選択なら何も表示しない
+  if (!selSub) {
+    sortRight.style.visibility = 'hidden';
+    con.innerHTML = `<div class="cmp-prompt">
+      <div class="cmp-prompt-icon">⚖️</div>
+      <div class="cmp-prompt-text">比較したいカテゴリを選択してください</div>
+    </div>`;
+    return;
+  }
+  sortRight.style.visibility = 'visible';
+
+  let pool = items.filter(i => !main || i.mainCategory===main);
+  if (selSub) pool = pool.filter(i => i.subCategory===selSub);
+
+  const grouped = {};
+  pool.forEach(i => { const k = i.subCategory||'未分類'; (grouped[k]=grouped[k]||[]).push(i); });
+
+  const keys = Object.keys(grouped);
+  if (!keys.length) {
+    con.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>データがありません</div>';
+    return;
+  }
+  con.innerHTML = keys.sort((a,b) => a.localeCompare(b)).map(k => cmpGroup(k, grouped[k])).join('');
+}
+
+function cmpGroup(sub, group) {
+  const sorted = sortItems(group, cmpSort);
+
+  const withUP = group.filter(i => calcUP(i.price,i.amount,i.unit) != null);
+  const ups    = withUP.map(i => calcUP(i.price,i.amount,i.unit));
+  const minP   = Math.min(...group.map(i => i.price));
+  const minU   = ups.length ? Math.min(...ups) : null;
+  const maxU   = ups.length ? Math.max(...ups) : null;
+
+  const upArrow = cmpSort === 'up-asc'  ? ' <span style="color:var(--green)">↑</span>'
+                : cmpSort === 'up-desc' ? ' <span style="color:var(--orange)">↓</span>'
+                : '';
+
+  // ── PC用テーブル行 ──
+  const tableRows = sorted.map(item => {
+    const up   = calcUP(item.price, item.amount, item.unit);
+    const isBP = item.price === minP;
+    const isBU = up!=null && up===minU;
+    const isWU = up!=null && up===maxU && minU!==maxU;
+    const bar  = maxU && up ? Math.round((up/maxU)*100) : null;
+    const starred = item.starred ? 'starred' : '';
+    return `<tr onclick="openModal('${item.id}')" style="cursor:pointer" class="${starred ? 'row-starred' : ''}">
+      <td style="width:28px;padding-right:0"><button class="star-btn ${starred}" onclick="event.stopPropagation();toggleStar('${item.id}')" title="お気に入り">${item.starred ? '★' : '☆'}</button></td>
+      <td class="td-name">${esc(item.productName)}</td>
+      <td><span class="tag tag-store">${esc(item.store)}</span></td>
+      <td class="mono ${isBP?'best-p':''}">${fmtYen(item.price)}</td>
+      <td style="font-size:12px;color:var(--ink2)">${item.amount ? item.amount+' '+(item.unit||'') : '—'}</td>
+      <td class="cmp-bar-cell">${bar!=null ? `<div class="cmp-bar-bg"><div class="cmp-bar-fill ${isWU?'w':''}" style="width:${bar}%"></div></div>` : ''}</td>
+      <td class="mono ${isBU?'best-u':''} ${isWU?'worst-u':''}">
+        ${up!=null ? fmtUP(up,item.unit)+upLabel(item.unit) : '—'}
+        ${isBU && withUP.length>1 ? '<span class="best-badge">✨ お得</span>' : ''}
+      </td>
+      <td class="cmp-memo">${esc(item.memo||'')}</td>
+      <td><button class="cmp-del" onclick="event.stopPropagation();delById('${item.id}')">🗑</button></td>
+    </tr>`;
+  });
+
+  // ── スマホ用カード ──
+  const mobileCards = sorted.map(item => {
+    const up   = calcUP(item.price, item.amount, item.unit);
+    const isBP = item.price === minP;
+    const isBU = up!=null && up===minU;
+    const isWU = up!=null && up===maxU && minU!==maxU;
+    const upStr = up!=null ? fmtUP(up,item.unit)+upLabel(item.unit) : null;
+    const starred = item.starred ? 'starred' : '';
+    return `<div class="cmc ${starred ? 'cmc-starred' : ''}" onclick="openModal('${item.id}')" style="cursor:pointer">
+      <div style="display:flex;align-items:flex-start;gap:6px">
+        <button class="star-btn ${starred}" onclick="event.stopPropagation();toggleStar('${item.id}')" title="お気に入り">${item.starred ? '★' : '☆'}</button>
+        <div style="flex:1">
+          <div class="cmc-name">${esc(item.productName)}</div>
+          <div class="cmc-row">
+            <span class="cmc-store" title="${esc(item.store)}">${esc(item.store)}</span>
+            <span class="cmc-price ${isBP?'bp':''}">${fmtYen(item.price)}</span>
+            ${item.amount ? `<span class="cmc-amount">${item.amount}${item.unit||''}</span>` : ''}
+            ${upStr ? `<span class="cmc-up ${isBU?'bu':''} ${isWU?'wu':''}">${upStr}${isBU && withUP.length>1 ? ' <span class="best-badge">✨ お得</span>' : ''}</span>` : ''}
+          </div>
+          ${item.memo ? `<div class="cmc-memo">${esc(item.memo)}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  return `<div class="cmp-group">
+    <div class="cmp-head">
+      <div class="cmp-title"><span class="tag tag-sub">${esc(sub)}</span></div>
+      <span class="cmp-count">${group.length}件</span>
+    </div>
+    <div class="cmp-card">
+      <table class="cmp-table">
+        <thead><tr>
+          <th style="width:28px"></th>
+          <th>商品名</th><th>店名</th><th>価格</th><th>量</th>
+          <th class="cmp-bar-cell">単価バー</th>
+          <th onclick="toggleCmpUpSort()" style="cursor:pointer;user-select:none;transition:color .12s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color=''">単価${upArrow}</th>
+          <th>メモ</th><th></th>
+        </tr></thead>
+        <tbody>${tableRows.join('')}</tbody>
+      </table>
+    </div>
+    <div class="cmp-mobile">
+      ${mobileCards.join('')}
+    </div>
+  </div>`;
+}
+
+function resetCompare() {
+  document.getElementById('cmp-main').value = '';
+  document.getElementById('cmp-sub').value  = '';
+  document.getElementById('cmp-sort').value = 'up-asc';
+  cmpSort = 'up-asc';
+  renderCompare();
+}
+
+// ロゴクリック：比較ページを初期状態にリセットしてトップへ
+function goHome() {
+  // 比較ページへ遷移してからリセット（DOMが確実に存在する順序で）
+  goPage('compare', document.querySelector('.nb'));
+  // 選択状態・ソート状態・並び順すべてを初期値に戻す
+  document.getElementById('cmp-main').value = '';
+  document.getElementById('cmp-sub').value  = '';
+  document.getElementById('cmp-sort').value = 'up-asc';
+  cmpSort = 'up-asc';
+  // 未選択状態で再描画（「カテゴリを選択してください」表示に戻る）
+  renderCompare();
+}
+
+// ============================================================
+// 登録・編集フォーム
+// ============================================================
+function calcPreview() {
+  const p = parseFloat(document.getElementById('f-price').value);
+  const a = parseFloat(document.getElementById('f-amount').value);
+  const u = document.getElementById('f-unit').value.trim();
+  const up = calcUP(p, a, u);
+  const box = document.getElementById('up-box');
+  const lbl = document.getElementById('up-lbl');
+  const num = document.getElementById('up-num');
+  if (up != null && !isNaN(up)) {
+    box.classList.add('active');
+    lbl.className = 'up-lbl active';
+    lbl.textContent = `1${u}あたり単価`;
+    num.textContent = fmtUP(up, u) + upLabel(u);
+  } else {
+    box.classList.remove('active');
+    lbl.className = 'up-lbl';
+    lbl.textContent = '価格と量（g / ml）を入力すると自動計算されます';
+    num.textContent = '';
+  }
+}
+
+function saveItem() {
+  const name  = document.getElementById('f-name').value.trim();
+  const store = document.getElementById('f-store').value.trim();
+  const main  = document.getElementById('f-main').value.trim();
+  const sub   = document.getElementById('f-sub').value.trim();
+  const price = parseFloat(document.getElementById('f-price').value);
+  const amount= parseFloat(document.getElementById('f-amount').value) || null;
+  const unit  = document.getElementById('f-unit').value.trim() || null;
+  const memo  = document.getElementById('f-memo').value.trim() || null;
+
+  if (!name || !store || !main || !sub || isNaN(price) || price <= 0) {
+    alert('商品名・店名・大カテゴリ・比較カテゴリ・価格は必須です'); return;
+  }
+
+  if (_editId) {
+    // ── 編集モード：既存アイテムを上書き ──
+    const idx = items.findIndex(i => i.id === _editId);
+    if (idx !== -1) {
+      items[idx] = { ...items[idx], productName:name, store, mainCategory:main, subCategory:sub, price, amount, unit, memo };
+    }
+  } else {
+    // ── 新規登録 ──
+    items.unshift({ id: Date.now().toString(), _ts: Date.now(), productName:name, store, mainCategory:main, subCategory:sub, price, amount, unit, memo });
+  }
+
+  persist();
+  refreshDropdowns();
+
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display='none', 2000);
+
+  // 新規登録後はフィールドを一部クリア。編集後はそのまま残す。
+  if (!_editId) {
+    document.getElementById('f-name').value   = '';
+    document.getElementById('f-price').value  = '';
+    document.getElementById('f-amount').value = '';
+    document.getElementById('f-memo').value   = '';
+    calcPreview();
+  } else {
+    // 編集完了→モードを戻す
+    _editId = null;
+    setEditMode(false);
+  }
+}
+
+function cancelEdit() {
+  _editId = null;
+  setEditMode(false);
+  clearForm();
+}
+
+function clearForm() {
+  ['f-name','f-store','f-main','f-sub','f-price','f-amount','f-unit','f-memo'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  calcPreview();
+}
+
+function setEditMode(on) {
+  document.getElementById('edit-banner').classList.toggle('show', on);
+  document.getElementById('add-title').textContent = on ? '✏️ 商品を編集する' : '➕ 商品を登録する';
+  document.getElementById('save-btn').textContent  = on ? '💾 更新する' : '💾 登録する';
+  document.getElementById('save-msg').textContent  = on ? '✅ 更新しました！' : '✅ 登録しました！';
+}
+
+// ============================================================
+// 詳細モーダル
+// ============================================================
+function openModal(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  _modalId = id;
+  const up = calcUP(item.price, item.amount, item.unit);
+
+  // ★ボタン
+  const mStar = document.getElementById('m-star');
+  mStar.textContent = item.starred ? '★' : '☆';
+  mStar.className   = 'star-btn' + (item.starred ? ' starred' : '');
+  mStar.title       = item.starred ? 'お気に入り解除' : 'お気に入りに追加';
+
+  document.getElementById('m-name').textContent = item.productName;
+  document.getElementById('m-tags').innerHTML =
+    `<span class="tag tag-main">${esc(item.mainCategory)}</span> ` +
+    `<span class="tag tag-sub">${esc(item.subCategory)}</span> ` +
+    `<span class="tag tag-store">${esc(item.store)}</span>`;
+
+  const rows = [
+    ['価格', fmtYen(item.price)],
+    item.amount ? ['量', item.amount + ' ' + (item.unit||'')] : null,
+    up != null  ? ['単価', fmtUP(up, item.unit) + ' ' + upLabel(item.unit)] : null,
+  ].filter(Boolean);
+
+  document.getElementById('m-rows').innerHTML = rows.map(([k,v]) =>
+    `<div class="modal-row">
+       <span class="modal-key">${k}</span>
+       <span class="modal-val">${esc(v)}</span>
+     </div>`
+  ).join('');
+
+  const me = document.getElementById('m-memo');
+  if (item.memo) { me.textContent = item.memo; me.style.display = 'block'; }
+  else { me.style.display = 'none'; }
+
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+// ★ トグル（一覧・比較カードのボタンから）
+function toggleStar(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.starred = !item.starred;
+  persist();
+  // 現在表示中のページを再描画
+  const ap = document.querySelector('.page.active');
+  if (ap.id === 'page-home')    homeSearch();
+  if (ap.id === 'page-list')    renderList();
+  if (ap.id === 'page-compare') renderCompare();
+  if (ap.id === 'page-store')   renderStore();
+}
+
+// ★ トグル（モーダル内のボタンから）
+function toggleStarModal() {
+  if (!_modalId) return;
+  toggleStar(_modalId);
+  // モーダルの★表示も更新
+  const item = items.find(i => i.id === _modalId);
+  if (!item) return;
+  const mStar = document.getElementById('m-star');
+  mStar.textContent = item.starred ? '★' : '☆';
+  mStar.className   = 'star-btn' + (item.starred ? ' starred' : '');
+  mStar.title       = item.starred ? 'お気に入り解除' : 'お気に入りに追加';
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+  _modalId = null;
+}
+function bgClick(e) {
+  if (e.target === document.getElementById('modal-bg')) closeModal();
+}
+
+// ── 詳細から編集へ ──
+function editFromModal() {
+  if (!_modalId) return;
+  const item = items.find(i => i.id === _modalId);
+  if (!item) return;
+
+  // フォームにデータを読み込む
+  document.getElementById('f-name').value   = item.productName || '';
+  document.getElementById('f-store').value  = item.store || '';
+  document.getElementById('f-main').value   = item.mainCategory || '';
+  document.getElementById('f-sub').value    = item.subCategory || '';
+  document.getElementById('f-price').value  = item.price || '';
+  document.getElementById('f-amount').value = item.amount || '';
+  document.getElementById('f-unit').value   = item.unit || '';
+  document.getElementById('f-memo').value   = item.memo || '';
+  calcPreview();
+
+  _editId = _modalId;
+  setEditMode(true);
+  closeModal();
+
+  // 登録画面へ遷移（商品=0, 店名=1, 登録=2）
+  goPageFromFilter('add');
+  // 画面トップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── 詳細から削除 ──
+function deleteModal() {
+  if (!_modalId) return;
+  const item = items.find(i => i.id === _modalId);
+  if (!item) return;
+  if (!confirm(`「${item.productName}」を削除しますか？`)) return;
+  closeModal();
+  delById(item.id, true);
+}
+
+// ── 削除ボタンから ──
+function delById(id, skipConfirm=false) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  if (!skipConfirm && !confirm(`「${item.productName}」を削除しますか？`)) return;
+  items = items.filter(i => i.id !== id);
+  persist();
+  refreshDropdowns();
+  const ap = document.querySelector('.page.active');
+  if (ap.id === 'page-home')    homeSearch();
+  if (ap.id === 'page-list')    renderList();
+  if (ap.id === 'page-compare') renderCompare();
+  if (ap.id === 'page-store')   renderStore();
+}
+
+// ============================================================
+// STORE PAGE
+// ============================================================
+function renderStore() {
+  const selStore  = document.getElementById('store-sel').value;
+  const con       = document.getElementById('store-container');
+  const sortRight = document.querySelector('#page-store .cmp-filter-right');
+
+  if (!selStore) {
+    if (sortRight) sortRight.style.visibility = 'hidden';
+    con.innerHTML = `<div class="cmp-prompt">
+      <div class="cmp-prompt-icon">🏪</div>
+      <div class="cmp-prompt-text">店名を選択してください</div>
+    </div>`;
+    return;
+  }
+  if (sortRight) sortRight.style.visibility = 'visible';
+
+  const pool = items.filter(i => i.store === selStore);
+  if (!pool.length) {
+    con.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>この店の商品はありません</div>';
+    return;
+  }
+
+  const storeSortVal = document.getElementById('store-sort').value;
+  const grouped = {};
+  pool.forEach(i => { const k = i.subCategory||'未分類'; (grouped[k]=grouped[k]||[]).push(i); });
+
+  const savedSort = cmpSort;
+  cmpSort = storeSortVal;
+  con.innerHTML = Object.keys(grouped).sort((a,b) => a.localeCompare(b))
+    .map(k => cmpGroup(k, grouped[k])).join('');
+  cmpSort = savedSort;
+}
+
+function resetStore() {
+  document.getElementById('store-sel').value  = '';
+  document.getElementById('store-sort').value = 'up-asc';
+  renderStore();
+}
+
+// ── データをサンプルに戻す（↺ボタン用） ──
+function resetAllData() {
+  if (!confirm('データをサンプルの初期状態に戻しますか？\n（登録した商品はすべて消えます）')) return;
+  localStorage.removeItem(SK);
+  items = SAMPLE_DATA.map((d, i) => ({ ...d, id: 's'+i, _ts: i }));
+  persist();
+  refreshDropdowns();
+  goHome();
+}
+
+// ============================================================
+// 今日の買い物リスト
+// ============================================================
+const SL_KEY = 'kaimono_shoplist';
+
+function slLoad()   { try { return JSON.parse(localStorage.getItem(SL_KEY)) || []; } catch(e) { return []; } }
+function slSave(ls) { localStorage.setItem(SL_KEY, JSON.stringify(ls)); }
+
+// 統合入力欄：候補 datalist を更新
+function slRefreshSelect() {
+  const dl = document.getElementById('sl-combo-list');
+  if (!dl) return;
+  const sorted = [...items].sort((a,b) => (a.productName||'').localeCompare(b.productName||'', 'ja'));
+  dl.innerHTML = sorted.map(i =>
+    `<option value="${esc(i.productName)}" data-store="${esc(i.store)}" data-id="${esc(i.id)}">`
+  ).join('');
+}
+
+// 統合入力欄のinputイベント（候補絞り込みは datalist が自動処理）
+function slComboInput() {
+  // datalist による自動絞り込みに任せる（何も必要なし）
+}
+
+// 追加実行（Enter or ＋ボタン）
+function slComboAdd() {
+  const inp = document.getElementById('sl-combo-input');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  // 入力値が登録済み商品と一致するか確認（店名も取得）
+  const matched = items.find(i => i.productName === text);
+  const ls = slLoad();
+  ls.push({
+    id:      Date.now().toString(),
+    text:    text,
+    store:   matched ? matched.store : '',
+    checked: false
+  });
+  slSave(ls);
+  inp.value = '';
+  slRender();
+}
+
+// チェックのトグル
+function slToggle(id) {
+  const ls = slLoad();
+  const item = ls.find(i => i.id === id);
+  if (item) item.checked = !item.checked;
+  slSave(ls);
+  slRender();
+}
+
+// 1件削除
+function slDelete(id) {
+  slSave(slLoad().filter(i => i.id !== id));
+  slRender();
+}
+
+// 全部消す
+function slClearAll() {
+  if (!confirm('今日の買い物リストをすべて消しますか？')) return;
+  slSave([]);
+  slRender();
+}
+
+// リストを描画
+function slRender() {
+  const ls = slLoad();
+  const el = document.getElementById('sl-list');
+  if (!el) return;
+  if (!ls.length) {
+    el.innerHTML = '<div class="sl-empty">まだ何も追加されていません</div>';
+    return;
+  }
+  // 未チェックを上、チェック済みを下に
+  const sorted = [...ls.filter(i => !i.checked), ...ls.filter(i => i.checked)];
+  el.innerHTML = sorted.map(i => `
+    <div class="sl-item ${i.checked ? 'checked' : ''}">
+      <div class="sl-check ${i.checked ? 'checked' : ''}" onclick="slToggle('${i.id}')">${i.checked ? '✓' : ''}</div>
+      <span class="sl-item-text" title="${esc(i.text)}">${esc(i.text)}</span>
+      ${i.store ? `<span class="sl-item-store">${esc(i.store)}</span>` : ''}
+      <button class="sl-del" onclick="slDelete('${i.id}')" title="削除">✕</button>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+refreshDropdowns();
+// 起動時は商品ページを表示
+renderCompare();
+document.querySelector('.nb').classList.add('active'); // 先頭＝商品ボタン
+// 買い物リストの初期描画
+slRender();
+slRefreshSelect();
+</script>
+</body>
+</html>
