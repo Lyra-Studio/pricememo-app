@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>かいもの帳</title>
+<title>Choice Index</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
@@ -321,7 +321,13 @@ nav {
 }
 .memo-input-row {
   display: flex;
+  flex-direction: column;
   gap: 8px;
+}
+@media (min-width: 480px) {
+  .memo-input-row {
+    flex-direction: row;
+  }
 }
 .memo-input {
   flex: 1;
@@ -436,24 +442,7 @@ nav {
 }
 .delete-btn:hover { color: var(--danger); background: #ffeaea; }
 
-/* clear done btn */
-.memo-footer {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
-.clear-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: 'Noto Sans JP', sans-serif;
-  transition: border-color 0.2s, color 0.2s;
-}
-.clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+
 
 /* ===== PC 2-COLUMN LAYOUT ===== */
 @media (min-width: 700px) {
@@ -560,7 +549,7 @@ nav {
 
 <header class="app-header">
   <div class="header-inner">
-    <div class="app-logo">かいもの<span>帳</span></div>
+    <div class="app-logo">Choice <span>Index</span></div>
     <nav>
       <button class="nav-btn active" onclick="showPage('products')">商品</button>
       <button class="nav-btn" onclick="showPage('stores')">店名</button>
@@ -616,9 +605,6 @@ nav {
           <!-- メモリスト -->
           <div class="memo-list" id="memo-list"></div>
 
-          <div class="memo-footer">
-            <button class="clear-btn" onclick="clearChecked()">完了済みを削除</button>
-          </div>
         </div>
       </div>
 
@@ -968,10 +954,6 @@ function deleteMemo(id) {
   renderMemo();
 }
 
-function clearChecked() {
-  memoItems = memoItems.filter(m => !m.checked);
-  renderMemo();
-}
 
 // =====================
 // STORE PAGE
