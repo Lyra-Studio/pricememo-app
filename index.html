@@ -142,8 +142,8 @@ nav {
 .products-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
-  margin-bottom: 32px;
+  gap: 7px;
+  margin-bottom: 20px;
 }
 @media (min-width: 600px) {
   .products-grid { grid-template-columns: 1fr 1fr; }
@@ -154,15 +154,17 @@ nav {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px 14px 14px 10px;
+  padding: 7px 10px 7px 6px;
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  gap: 8px;
+  align-items: center;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.15s;
   position: relative;
+  cursor: pointer;
 }
-.product-card:hover { box-shadow: var(--shadow); }
+.product-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.product-card:active { transform: translateY(0); }
 .product-card.best {
   border-color: var(--accent);
   background: linear-gradient(135deg, #fff 60%, var(--accent-light) 100%);
@@ -171,14 +173,13 @@ nav {
 .star-btn {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 15px;
   cursor: pointer;
-  padding: 0;
+  padding: 0 2px;
   line-height: 1;
   color: #ccc;
   transition: color 0.15s, transform 0.15s;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 .star-btn:hover { transform: scale(1.2); }
 .star-btn.starred { color: var(--star-on); }
@@ -189,16 +190,20 @@ nav {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-bottom: 2px;
 }
 
 .product-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text);
-  line-height: 1.4;
+  line-height: 1.35;
   word-break: break-all;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .best-badge {
@@ -217,9 +222,9 @@ nav {
 }
 
 .store-name {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: 3px;
 }
 
 .price-row {
@@ -230,7 +235,7 @@ nav {
 }
 
 .unit-price {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: -0.02em;
@@ -243,36 +248,189 @@ nav {
 }
 
 .card-meta {
-  margin-top: 6px;
+  margin-top: 2px;
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .tag {
-  font-size: 11px;
-  padding: 2px 8px;
+  font-size: 10px;
+  padding: 1px 6px;
   border-radius: 6px;
   background: var(--surface2);
   color: var(--text-muted);
 }
 
 .deal-tag {
-  font-size: 11px;
-  padding: 2px 8px;
+  font-size: 10px;
+  padding: 1px 6px;
   border-radius: 6px;
   background: var(--accent2-light);
   color: var(--accent2);
   font-weight: 600;
 }
 
-.memo-text {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--text-muted);
-  font-style: italic;
+/* メモはカード上非表示→モーダルで確認 */
+.memo-text { display: none; }
+
+/* ===== DETAIL MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(42,38,32,0.45);
+  z-index: 200;
+  align-items: flex-end;
+  justify-content: center;
 }
+.modal-overlay.open { display: flex; }
+
+.modal-sheet {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0 0 32px;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 12px auto 16px;
+}
+.modal-header {
+  padding: 0 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-title { font-size: 15px; font-weight: 700; }
+.modal-close {
+  background: none; border: none;
+  font-size: 20px; color: var(--text-muted);
+  cursor: pointer; padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: var(--surface2); }
+.modal-body { padding: 16px 20px; }
+.modal-badge-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.modal-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.modal-row:last-child { border-bottom: none; }
+.modal-row-label {
+  font-size: 11px; font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  width: 56px; flex-shrink: 0;
+}
+.modal-row-value { font-size: 14px; }
+.modal-unit-price-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+.modal-actions {
+  padding: 16px 20px 0;
+  display: flex;
+  gap: 10px;
+}
+.btn-edit {
+  flex: 1;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-edit:hover { opacity: 0.88; }
+.btn-delete {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--danger);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-delete:hover { border-color: var(--danger); background: #fff0f0; }
+
+/* ===== EDIT PANEL ===== */
+.edit-panel { display: none; padding: 0 20px; }
+.edit-panel.open { display: block; }
+.edit-field { margin-bottom: 12px; }
+.edit-label {
+  font-size: 11px; font-weight: 700;
+  color: var(--text-muted); letter-spacing: 0.06em;
+  margin-bottom: 4px; display: block;
+}
+.edit-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.2s;
+}
+.edit-input:focus { outline: none; border-color: var(--accent); }
+.edit-input-row { display: flex; gap: 8px; }
+.edit-input-row .edit-input { flex: 1; }
+.edit-input-unit {
+  width: 64px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+}
+.edit-btn-row { display: flex; gap: 8px; margin-top: 16px; }
+.btn-save {
+  flex: 1;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-save:hover { opacity: 0.88; }
+.btn-cancel-edit {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.btn-cancel-edit:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ===== EMPTY STATE ===== */
 .empty-state {
@@ -640,6 +798,85 @@ nav {
 
 </main>
 
+<!-- ===== DETAIL / EDIT MODAL ===== -->
+<div class="modal-overlay" id="modal-overlay" onclick="onOverlayClick(event)">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+
+    <!-- 詳細表示 -->
+    <div id="modal-detail">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-product-name"></div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-badge-row" id="modal-badges"></div>
+        <div class="modal-row">
+          <span class="modal-row-label">単価</span>
+          <span class="modal-unit-price-value" id="modal-unit-price"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-row-label">店名</span>
+          <span class="modal-row-value" id="modal-store"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-row-label">価格</span>
+          <span class="modal-row-value" id="modal-price"></span>
+        </div>
+        <div class="modal-row">
+          <span class="modal-row-label">量</span>
+          <span class="modal-row-value" id="modal-amount"></span>
+        </div>
+        <div class="modal-row" id="modal-memo-row">
+          <span class="modal-row-label">メモ</span>
+          <span class="modal-row-value" id="modal-memo"></span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-edit" onclick="openEditPanel()">✏️ 編集</button>
+        <button class="btn-delete" onclick="deleteItem()">削除</button>
+      </div>
+    </div>
+
+    <!-- 編集パネル -->
+    <div class="edit-panel" id="edit-panel">
+      <div class="modal-header" style="margin-bottom:0">
+        <div class="modal-title">編集</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div style="height:14px"></div>
+      <div class="edit-field">
+        <label class="edit-label">商品名</label>
+        <input type="text" class="edit-input" id="edit-name">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">店名</label>
+        <input type="text" class="edit-input" id="edit-store">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">価格（円）</label>
+        <input type="number" class="edit-input" id="edit-price">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">量・単位</label>
+        <div class="edit-input-row">
+          <input type="number" class="edit-input" id="edit-amount" placeholder="例: 250">
+          <input type="text" class="edit-input-unit" id="edit-unit" placeholder="g">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">メモ</label>
+        <input type="text" class="edit-input" id="edit-memo" placeholder="任意">
+      </div>
+      <div class="edit-btn-row">
+        <button class="btn-save" onclick="saveEdit()">✔ 更新</button>
+        <button class="btn-cancel-edit" onclick="cancelEdit()">キャンセル</button>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // =====================
 // DATA
@@ -781,8 +1018,8 @@ function showProductComparison() {
         ? Math.round((1 - minUP / Math.max(...withUP.map(d => d.unitPrice))) * 100)
         : 0;
 
-      return `<div class="product-card${isBest ? ' best' : ''}">
-        <button class="star-btn${item.starred ? ' starred' : ''}" onclick="toggleStar(this, '${item.name}', '${item.store}')" title="お気に入り">${item.starred ? '★' : '☆'}</button>
+      return `<div class="product-card${isBest ? ' best' : ''}" onclick="openModal('${item.name.replace(/'/g,"\\'")}','${item.store.replace(/'/g,"\\'")}')">
+        <button class="star-btn${item.starred ? ' starred' : ''}" onclick="event.stopPropagation();toggleStar(this,'${item.name.replace(/'/g,"\\'")}','${item.store.replace(/'/g,"\\'")}');" title="お気に入り">${item.starred ? '★' : '☆'}</button>
         <div class="card-body">
           <div class="card-top">
             <div class="product-name">${item.name}</div>
@@ -796,9 +1033,10 @@ function showProductComparison() {
           <div class="card-meta">
             <span class="tag">${item.price}円 / ${item.amount}${item.unit}</span>
             ${isBest && dealPct > 0 ? `<span class="deal-tag">▼ ${dealPct}% お得</span>` : ''}
+            ${item.memo ? '<span class="tag" style="color:var(--accent2)">📝</span>' : ''}
           </div>
-          ${item.memo ? `<div class="memo-text">📝 ${item.memo}</div>` : ''}
         </div>
+        <span style="font-size:14px;color:var(--border);flex-shrink:0;padding-left:2px;">›</span>
       </div>`;
     }).join('') + '</div>';
 }
@@ -1065,6 +1303,106 @@ function renderAllProducts() {
 // =====================
 initProductSelect();
 renderMemo();
+
+// =====================
+// MODAL
+// =====================
+let modalItem = null; // 現在表示中のアイテム参照
+
+function upStr(item) {
+  const up = item.unitPrice;
+  if (!up) return '—';
+  if (['g','ml'].includes(item.unit)) return (up*100).toFixed(1) + '円/100' + item.unit;
+  return up.toFixed(1) + '円/' + item.unit;
+}
+
+function openModal(name, store) {
+  const item = rawData.find(d => d.name === name && d.store === store);
+  if (!item) return;
+  modalItem = item;
+
+  // 詳細を埋める
+  document.getElementById('modal-product-name').textContent = item.name;
+  document.getElementById('modal-unit-price').textContent = upStr(item);
+  document.getElementById('modal-store').textContent = item.store;
+  document.getElementById('modal-price').textContent = item.price + '円';
+  document.getElementById('modal-amount').textContent = item.amount + item.unit;
+
+  const memoRow = document.getElementById('modal-memo-row');
+  if (item.memo) {
+    document.getElementById('modal-memo').textContent = item.memo;
+    memoRow.style.display = '';
+  } else {
+    memoRow.style.display = 'none';
+  }
+
+  // バッジ
+  const cats = rawData.filter(d => d.cat === item.cat && d.unitPrice !== null);
+  const minUP = cats.length ? Math.min(...cats.map(d => d.unitPrice)) : null;
+  const isBest = item.unitPrice !== null && item.unitPrice === minUP && cats.length > 1;
+  let badges = `<span class="tag">${item.cat}</span>`;
+  if (isBest) badges += '<span class="best-badge">✦ 最安</span>';
+  if (item.starred) badges += '<span style="font-size:15px;color:var(--star-on)">★ お気に入り</span>';
+  document.getElementById('modal-badges').innerHTML = badges;
+
+  // 詳細を表示、編集パネルを隠す
+  document.getElementById('modal-detail').style.display = '';
+  document.getElementById('edit-panel').classList.remove('open');
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  modalItem = null;
+}
+
+function onOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function openEditPanel() {
+  if (!modalItem) return;
+  document.getElementById('edit-name').value = modalItem.name;
+  document.getElementById('edit-store').value = modalItem.store;
+  document.getElementById('edit-price').value = modalItem.price;
+  document.getElementById('edit-amount').value = modalItem.amount;
+  document.getElementById('edit-unit').value = modalItem.unit;
+  document.getElementById('edit-memo').value = modalItem.memo || '';
+
+  document.getElementById('modal-detail').style.display = 'none';
+  document.getElementById('edit-panel').classList.add('open');
+}
+
+function cancelEdit() {
+  document.getElementById('modal-detail').style.display = '';
+  document.getElementById('edit-panel').classList.remove('open');
+}
+
+function saveEdit() {
+  if (!modalItem) return;
+  modalItem.name   = document.getElementById('edit-name').value.trim() || modalItem.name;
+  modalItem.store  = document.getElementById('edit-store').value.trim() || modalItem.store;
+  modalItem.price  = parseFloat(document.getElementById('edit-price').value) || modalItem.price;
+  modalItem.amount = parseFloat(document.getElementById('edit-amount').value) || modalItem.amount;
+  modalItem.unit   = document.getElementById('edit-unit').value.trim() || modalItem.unit;
+  modalItem.memo   = document.getElementById('edit-memo').value.trim();
+  modalItem.unitPrice = calcUnitPrice(modalItem);
+
+  closeModal();
+  showProductComparison(); // カード再描画
+}
+
+function deleteItem() {
+  if (!modalItem) return;
+  if (!confirm(`「${modalItem.name}」（${modalItem.store}）を削除しますか？`)) return;
+  const idx = rawData.indexOf(modalItem);
+  if (idx !== -1) rawData.splice(idx, 1);
+  closeModal();
+  showProductComparison();
+}
 </script>
 </body>
 </html>
