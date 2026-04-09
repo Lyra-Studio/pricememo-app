@@ -121,10 +121,19 @@ nav{display:flex;gap:4px}
 .memo-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;background:var(--bg);transition:opacity .2s}
 .memo-item.checked{opacity:.45}
 .memo-check{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
-.memo-item-text{flex:1;font-size:13px}
-.memo-item.checked .memo-item-text{text-decoration:line-through;color:var(--text-muted)}
-.delete-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:2px 4px;border-radius:4px;transition:color .15s,background .15s;line-height:1}
+.memo-item-body{flex:1;min-width:0}
+.memo-item-name{font-size:13px;line-height:1.3}
+.memo-item.checked .memo-item-name{text-decoration:line-through;color:var(--text-muted)}
+.memo-item-detail{font-size:11px;color:var(--text-muted);display:flex;gap:6px;align-items:center;margin-top:1px}
+.memo-item-store{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100px}
+.memo-item-price{color:var(--text-sub);flex-shrink:0}
+.delete-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:2px 4px;border-radius:4px;transition:color .15s,background .15s;line-height:1;flex-shrink:0}
 .delete-btn:hover{color:var(--danger);background:#ffeaea}
+/* 合計金額 */
+.memo-total{margin-top:10px;padding:8px 10px;border-radius:7px;background:var(--accent-light);display:flex;align-items:center;justify-content:space-between}
+.memo-total-label{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+.memo-total-amount{font-size:15px;font-weight:700;color:var(--accent)}
+.memo-total-unknown{font-size:10px;color:var(--text-muted);margin-left:4px;font-weight:400}
 .suggestions::-webkit-scrollbar{width:5px}
 .suggestions::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
@@ -459,7 +468,7 @@ function buildRow(d, mode, minUP, maxUP){
 
   // メモ追加ボタン（商品ページのみ）
   const memoBtn=mode==='product'
-    ?`<button class="memo-add-btn" onclick="event.stopPropagation();addMemoItem('${esc(d.name)}')" title="買い物メモへ追加">＋</button>`
+    ?`<button class="memo-add-btn" onclick="event.stopPropagation();addMemoItem('${esc(d.name)}','${esc(d.store)}',${d.price})" title="買い物メモへ追加">＋</button>`
     :'';
 
   return `<div class="item-row${isBest?' best-row':''}" onclick="openModal('${esc(d.name)}','${esc(d.store)}')">
@@ -727,17 +736,63 @@ function addMemoFromInput(){
   document.getElementById('memo-input').value='';
   document.getElementById('suggestions').classList.remove('open');
 }
-function addMemoItem(text){
+function addMemoItem(text, store, price){
   if(!text)return;
-  memoItems.push({text,checked:false,id:Date.now()+Math.random()});
+  // rawDataから該当商品を探して店名・価格を補完
+  if(store===undefined||price===undefined){
+    const hit=rawData.find(d=>d.name===text);
+    store = hit ? hit.store : null;
+    price = hit ? hit.price : null;
+  }
+  memoItems.push({text, store, price, checked:false, id:Date.now()+Math.random()});
   renderMemo();
 }
 function renderMemo(){
   const list=document.getElementById('memo-list');
   const count=document.getElementById('memo-count');
   count.textContent=memoItems.filter(m=>!m.checked).length;
-  if(!memoItems.length){list.innerHTML='<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:12px;">メモはまだありません</div>';return;}
-  list.innerHTML=memoItems.map(m=>`<div class="memo-item${m.checked?' checked':''}"><input type="checkbox" class="memo-check" ${m.checked?'checked':''} onchange="toggleMemo(${m.id})"><span class="memo-item-text">${m.text}</span><button class="delete-btn" onclick="deleteMemo(${m.id})" title="削除">✕</button></div>`).join('');
+
+  if(!memoItems.length){
+    list.innerHTML='<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:12px;">メモはまだありません</div>';
+    return;
+  }
+
+  // 各行を描画
+  const rows=memoItems.map(m=>{
+    const storeHtml=m.store
+      ?`<span class="memo-item-store">${m.store}</span>`
+      :'';
+    const priceHtml=m.price!=null
+      ?`<span class="memo-item-price">${m.price}円</span>`
+      :'';
+    const detailHtml=(storeHtml||priceHtml)
+      ?`<div class="memo-item-detail">${storeHtml}${storeHtml&&priceHtml?'<span style="color:var(--border)">·</span>':''}${priceHtml}</div>`
+      :'';
+    return `<div class="memo-item${m.checked?' checked':''}">
+      <input type="checkbox" class="memo-check" ${m.checked?'checked':''} onchange="toggleMemo(${m.id})">
+      <div class="memo-item-body">
+        <div class="memo-item-name">${m.text}</div>
+        ${detailHtml}
+      </div>
+      <button class="delete-btn" onclick="deleteMemo(${m.id})" title="削除">✕</button>
+    </div>`;
+  }).join('');
+
+  // 合計金額（未チェック＋価格あり）
+  const priceItems=memoItems.filter(m=>!m.checked&&m.price!=null);
+  const unknownCnt=memoItems.filter(m=>!m.checked&&m.price==null).length;
+  const total=priceItems.reduce((s,m)=>s+m.price,0);
+  const totalHtml=memoItems.length
+    ?`<div class="memo-total">
+        <span class="memo-total-label">合計金額</span>
+        <span>
+          <span class="memo-total-amount">${total.toLocaleString()}円</span>
+          ${unknownCnt>0?`<span class="memo-total-unknown">+金額不明 ${unknownCnt}件</span>`:''}
+        </span>
+      </div>`
+    :'';
+
+  list.innerHTML=rows+totalHtml;
 }
 function toggleMemo(id){const m=memoItems.find(x=>x.id===id);if(m){m.checked=!m.checked;renderMemo();}}
 function deleteMemo(id){memoItems=memoItems.filter(x=>x.id!==id);renderMemo();}
