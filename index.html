@@ -352,11 +352,11 @@ nav{display:flex;gap:4px}
 // DATA（Excelから最新 + favorite列反映）
 // =====================
 const rawData = [
-  {fav:true, name:"野菜セット",store:"セブン",cat:"カット野菜",price:127,amount:260,unit:"g",memo:"少し量が多い"},
+  {fav:true, name:"五目野菜炒めセット",store:"セブン",cat:"カット野菜",price:128,amount:260,unit:"g",memo:"少し量が多い"},
   {fav:false,name:"ニラもやし炒め",store:"ファミマ",cat:"カット野菜",price:116,amount:225,unit:"g",memo:"ポイントがたまる"},
   {fav:false,name:"まいたけ",store:"マックスバリュ",cat:"きのこ",price:82,amount:1,unit:"個",memo:""},
   {fav:true, name:"北海道産ゆきほまれ 絹豆腐",store:"マックスバリュ",cat:"豆腐",price:117,amount:450,unit:"g",memo:""},
-  {fav:false,name:"国産木綿豆腐",store:"セブン",cat:"豆腐",price:149,amount:450,unit:"g",memo:""},
+  {fav:false,name:"国産木綿豆腐",store:"セブン",cat:"豆腐",price:128,amount:450,unit:"g",memo:""},
   {fav:false,name:"カナダorアメリカ産 木綿豆腐",store:"マックスバリュ",cat:"豆腐",price:88,amount:450,unit:"g",memo:""},
   {fav:false,name:"カナダorアメリカ産 木綿豆腐",store:"ファミマ",cat:"豆腐",price:128,amount:450,unit:"g",memo:""},
   {fav:false,name:"卵",store:"マックスバリュ",cat:"卵",price:258,amount:10,unit:"個",memo:""},
@@ -369,7 +369,7 @@ const rawData = [
   {fav:true, name:"玄米 新潟県産こしいぶき 2kg 令和7年産",store:"Amazon",cat:"米",price:1609,amount:2000,unit:"g",memo:""},
   {fav:false,name:"パールライス 秋田県産 玄米 あきたこまち 2kg",store:"Amazon",cat:"米",price:1757,amount:2000,unit:"g",memo:""},
   {fav:false,name:"パールライス 新潟県産 玄米 コシヒカリ 2kg",store:"Amazon",cat:"米",price:1891,amount:2000,unit:"g",memo:""},
-  {fav:false,name:"ミツハシ 【玄米】 美食玄米 900g",store:"Amazon",cat:"米",price:1300,amount:900,unit:"g",memo:""},
+  {fav:false,name:"ミツハシ 【玄米】 美食玄米 900g ( 岩手県産 ひとめぼれ 使用 )",store:"Amazon",cat:"米",price:1300,amount:900,unit:"g",memo:""},
   {fav:true, name:"もち",store:"マックスバリュ",cat:"米",price:645,amount:700,unit:"g",memo:""},
   {fav:true, name:"素焼きミックスナッツ",store:"ファミマ",cat:"ナッツ",price:398,amount:70,unit:"g",memo:""},
   {fav:false,name:"ナチュラルナッツ 個包装 7袋",store:"スギ薬局",cat:"ナッツ",price:429,amount:70,unit:"g",memo:""},
@@ -389,34 +389,47 @@ const rawData = [
   {fav:true, name:"ネスカフェ ふわラテ ほっこりカフェインレス 20P",store:"スギ薬局",cat:"スティック飲料",price:537,amount:20,unit:"本",memo:""},
   {fav:true, name:"七味唐辛子",store:"Can★Do",cat:"調味料",price:108,amount:15,unit:"g",memo:""},
   {fav:false,name:"七味唐辛子",store:"スギ薬局",cat:"調味料",price:159,amount:15,unit:"g",memo:""},
+  {fav:true, name:"DHC 亜鉛 60日 60粒 3袋セット",store:"Amazon",cat:"サプリ",price:1340,amount:180,unit:"個",memo:""},
+  {fav:false,name:"DHC 亜鉛 60日 60粒",store:"ダイコクドラッグ",cat:"サプリ",price:537,amount:60,unit:"個",memo:""},
+  {fav:true, name:"マツキヨ葉酸サプリ",store:"マツキヨ",cat:"サプリ",price:430,amount:90,unit:"個",memo:""},
+  {fav:true, name:"ココナッツサブレ",store:"コクミン薬局",cat:"お菓子",price:137,amount:16,unit:"個",memo:""},
   {fav:false,name:"ココナッツサブレ",store:"マックスバリュ",cat:"お菓子",price:149,amount:16,unit:"個",memo:""},
+  {fav:true, name:"レモンパック",store:"ダイコクドラッグ",cat:"お菓子",price:159,amount:16,unit:"個",memo:""},
+  {fav:false,name:"チョイス",store:"ダイコクドラッグ",cat:"お菓子",price:null,amount:14,unit:"個",memo:""},
+  {fav:true, name:"チョイス",store:"コクミン薬局",cat:"お菓子",price:170,amount:14,unit:"個",memo:""},
   {fav:true, name:"マカダミアチョコ",store:"コクミン薬局",cat:"お菓子",price:257,amount:9,unit:"個",memo:""},
   {fav:false,name:"マカダミアチョコ",store:"マックスバリュ",cat:"お菓子",price:300,amount:9,unit:"個",memo:""},
   {fav:false,name:"厚切りポテトピザ",store:"マックスバリュ",cat:"ポテトチップス",price:117,amount:60,unit:"g",memo:""},
+  {fav:true, name:"サッポロポテトバーベQ",store:"コクミン薬局",cat:"お菓子",price:117,amount:72,unit:"g",memo:""},
+  {fav:false,name:"クリスプチョコ",store:"コクミン薬局",cat:"お菓子",price:203,amount:1,unit:"個",memo:""},
   {fav:false,name:"カインズ UVスプレー SPF50+ PA++++ 250g",store:"カインズ",cat:"日焼け止め",price:980,amount:250,unit:"g",memo:"手で塗らなくていい"},
   {fav:true, name:"SKIN AQUA トーンアップ 日焼け止め ラベンダー SPF50+",store:"Amazon",cat:"日焼け止め",price:600,amount:80,unit:"ml",memo:"香りがいい"},
   {fav:false,name:"セザンヌ 皮脂テカリ防止下地 ライトブルー",store:"Amazon",cat:"日焼け止め",price:660,amount:30,unit:"ml",memo:""},
   {fav:false,name:"UZU アイオープニングライナー ブラウンブラック",store:"Amazon",cat:"アイライナー",price:1100,amount:1,unit:"本",memo:"出にくい時がある"},
   {fav:true, name:"KATE スーパーシャープライナーEX4.0 BK-1 セット",store:"マツキヨ",cat:"アイライナー",price:1430,amount:1,unit:"本",memo:"細く書きやすい"},
-  {fav:false,name:"KATE スーパーシャープライナーEX4.0 BK-1",store:"Amazon",cat:"アイライナー",price:1430,amount:1,unit:"本",memo:"インクが出すぎるときがある"},
+  {fav:false,name:"KATE(ケイト) スーパーシャープライナーEX4.0 BK-1",store:"Amazon",cat:"アイライナー",price:1430,amount:1,unit:"本",memo:"インクが出すぎるときがある"},
   {fav:false,name:"セザンヌ グロウコートマスカラ 01 シアーブラック",store:"Amazon",cat:"マスカラ",price:660,amount:1,unit:"本",memo:""},
   {fav:false,name:"MAYBELLINE マスカラ ラッシュニスタ N 01 ブラック",store:"Amazon",cat:"マスカラ",price:1370,amount:1,unit:"本",memo:""},
   {fav:false,name:"Milk Touch マスカラ ブラック お湯落ち",store:"Amazon",cat:"マスカラ",price:1628,amount:1,unit:"本",memo:"下睫毛にとても良い。少しダマになりやすい。"},
-  {fav:false,name:"rom&nd HAN ALL BROW CARA 02 マイルドウッディー",store:"Amazon",cat:"眉マスカラ",price:1210,amount:1,unit:"本",memo:""},
+  {fav:false,name:"rom&nd HAN ALL BROW CARA(02 マイルドウッディー)",store:"Amazon",cat:"眉マスカラ",price:1210,amount:1,unit:"本",memo:""},
   {fav:false,name:"ヴァセリン アドバンスドリペア ボディローション 600ml",store:"Amazon",cat:"ボディローション",price:1339,amount:600,unit:"ml",memo:""},
   {fav:false,name:"ヴァセリン アドバンスドリペア ボディローション 400ml",store:"Amazon",cat:"ボディローション",price:918,amount:400,unit:"ml",memo:""},
-  {fav:false,name:"Dr.Scholl 靴専用 瞬間消臭×抗菌 48時間消臭効果",store:"Amazon",cat:"靴スプレー",price:745,amount:150,unit:"ml",memo:""},
+  {fav:false,name:"Dr.Scholl 靴専用 瞬間消臭×抗菌・防カビ 48時間消臭効果持続",store:"Amazon",cat:"靴スプレー",price:745,amount:150,unit:"ml",memo:""},
   {fav:true, name:"ナプキン 16個入り",store:"スギ薬局",cat:"生理用品",price:437,amount:16,unit:"個",memo:""},
   {fav:false,name:"ナプキン 16個入り",store:"マツキヨ",cat:"生理用品",price:570,amount:16,unit:"個",memo:""},
+  {fav:false,name:"キレイスタイル おりものシート",store:"マツキヨ",cat:"おりものシート",price:283,amount:72,unit:"個",memo:""},
+  {fav:true, name:"目薬",store:"コクミン薬局",cat:"目薬",price:217,amount:1,unit:"個",memo:""},
+  {fav:true, name:"サロンドプロ 無香料 早染めクリーム 6",store:"Amazon",cat:"カラー剤",price:578,amount:1,unit:"個",memo:""},
+  {fav:false,name:"サロンドプロ 無香料 早染めクリーム 6",store:"ダイコクドラッグ",cat:"カラー剤",price:636,amount:1,unit:"個",memo:""},
   {fav:false,name:"ヘアカット・ヘアカラー・白髪染め",store:"little×RINNE",cat:"美容",price:7900,amount:1,unit:"回",memo:""},
-  {fav:false,name:"フット ネイルケア フットバス＋角質除去＋保湿",store:"リッシュ トロワ",cat:"美容",price:2200,amount:1,unit:"回",memo:""},
+  {fav:false,name:"フット ネイルケア フットバス＋角質除去＋保湿トリートメント",store:"リッシュ トロワ",cat:"美容",price:2200,amount:1,unit:"回",memo:""},
 ];
 
 // =====================
 // HELPERS
 // =====================
 function calcUnitPrice(d){
-  if(!d.amount||d.amount===0)return null;
+  if(d.price==null||!d.amount||d.amount===0)return null;
   return d.price/d.amount;
 }
 rawData.forEach(d=>{d.unitPrice=calcUnitPrice(d);});
