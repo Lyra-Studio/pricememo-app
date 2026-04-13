@@ -214,10 +214,27 @@ nav{display:flex;gap:4px}
           <div class="section-label">商品</div>
           <button class="add-product-btn" onclick="openAddModal()">＋ 商品登録</button>
         </div>
-        <div class="select-wrap">
-          <select id="product-select" onchange="renderProductComparison()">
-            <option value="">商品を選択してください</option>
-          </select>
+        <!-- ★ 一本化入力欄 -->
+        <div class="product-search-wrap" id="product-search-wrap">
+          <div class="product-search-inner">
+            <input
+              type="text"
+              class="product-search-input"
+              id="product-search-input"
+              placeholder="商品名・カテゴリで検索、またはメモに追加…"
+              autocomplete="off"
+              oninput="onProductSearch()"
+              onfocus="onProductSearchFocus()"
+              onkeydown="onProductSearchKeydown(event)"
+            >
+            <button class="memo-quick-btn" onclick="addSearchInputToMemo()" title="入力中の文字をメモへ追加">＋メモ</button>
+          </div>
+          <div class="product-suggestions" id="product-suggestions"></div>
+        </div>
+        <!-- 選択中カテゴリ表示 -->
+        <div class="product-selected-cat" id="product-selected-cat" style="display:none">
+          <span id="product-selected-cat-label"></span>
+          <button class="cat-clear-btn" onclick="clearProductSelection()">✕ クリア</button>
         </div>
         <div id="product-comparison"></div>
       </div>
@@ -226,16 +243,6 @@ nav{display:flex;gap:4px}
         <div class="memo-section">
           <div class="memo-header">
             <div class="memo-title">🛒 買い物メモ <span class="memo-count" id="memo-count">0</span></div>
-          </div>
-          <div class="autocomplete-wrap">
-            <div class="memo-input-row">
-              <input type="text" class="memo-input" id="memo-input"
-                placeholder="商品を追加…（候補または自由入力）"
-                autocomplete="off"
-                oninput="onMemoInput()" onfocus="onMemoFocus()" onkeydown="onMemoKeydown(event)">
-              <button class="add-btn" onclick="addMemoFromInput()">追加</button>
-            </div>
-            <div class="suggestions" id="suggestions"></div>
           </div>
           <div class="memo-list" id="memo-list"></div>
         </div>
@@ -349,7 +356,7 @@ nav{display:flex;gap:4px}
 
 <script>
 // =====================
-// DATA（Excelから最新 + favorite列反映）
+// DATA（最新72件）
 // =====================
 const rawData = [
   {fav:true, name:"五目野菜炒めセット",store:"セブン",cat:"カット野菜",price:128,amount:260,unit:"g",memo:"少し量が多い"},
@@ -382,6 +389,8 @@ const rawData = [
   {fav:false,name:"シュークリーム",store:"スギ薬局",cat:"チルド菓子",price:105,amount:1,unit:"個",memo:""},
   {fav:true, name:"ネスカフェ ゴールドブレンド カフェインレス(40杯分) 瓶",store:"Amazon",cat:"カフェインレスコーヒー",price:1219,amount:80,unit:"g",memo:""},
   {fav:false,name:"ネスカフェ ゴールドブレンド カフェインレス(40杯分) 瓶",store:"スギ薬局",cat:"カフェインレスコーヒー",price:1382,amount:80,unit:"g",memo:""},
+  {fav:true, name:"ネスカフェ ゴールドブレンド カフェインレス スティック 14P(2g/P)",store:"スギ薬局",cat:"カフェインレスコーヒー",price:527,amount:14,unit:"個",memo:""},
+  {fav:false,name:"ネスカフェ ゴールドブレンド カフェインレス スティック 14P(2g/P) ×2箱",store:"Amazon",cat:"カフェインレスコーヒー",price:1188,amount:28,unit:"個",memo:""},
   {fav:true, name:"ネスレ ふわラテ 香るミルクティー 26P",store:"Amazon",cat:"スティック飲料",price:519,amount:26,unit:"本",memo:""},
   {fav:false,name:"ネスレ ふわラテ 香るミルクティー 26P",store:"スギ薬局",cat:"スティック飲料",price:537,amount:26,unit:"本",memo:""},
   {fav:true, name:"ネスレ ふわラテ ミルクココア 20P",store:"マックスバリュ",cat:"スティック飲料",price:516,amount:20,unit:"本",memo:""},
@@ -390,12 +399,11 @@ const rawData = [
   {fav:true, name:"七味唐辛子",store:"Can★Do",cat:"調味料",price:108,amount:15,unit:"g",memo:""},
   {fav:false,name:"七味唐辛子",store:"スギ薬局",cat:"調味料",price:159,amount:15,unit:"g",memo:""},
   {fav:true, name:"DHC 亜鉛 60日 60粒 3袋セット",store:"Amazon",cat:"サプリ",price:1340,amount:180,unit:"個",memo:""},
-  {fav:false,name:"DHC 亜鉛 60日 60粒",store:"ダイコクドラッグ",cat:"サプリ",price:537,amount:60,unit:"個",memo:""},
+  {fav:false,name:"DHC 亜鉛 60日 60粒",store:"コクミン薬局",cat:"サプリ",price:507,amount:60,unit:"個",memo:""},
   {fav:true, name:"マツキヨ葉酸サプリ",store:"マツキヨ",cat:"サプリ",price:430,amount:90,unit:"個",memo:""},
   {fav:true, name:"ココナッツサブレ",store:"コクミン薬局",cat:"お菓子",price:137,amount:16,unit:"個",memo:""},
   {fav:false,name:"ココナッツサブレ",store:"マックスバリュ",cat:"お菓子",price:149,amount:16,unit:"個",memo:""},
   {fav:true, name:"レモンパック",store:"ダイコクドラッグ",cat:"お菓子",price:159,amount:16,unit:"個",memo:""},
-  {fav:false,name:"チョイス",store:"ダイコクドラッグ",cat:"お菓子",price:null,amount:14,unit:"個",memo:""},
   {fav:true, name:"チョイス",store:"コクミン薬局",cat:"お菓子",price:170,amount:14,unit:"個",memo:""},
   {fav:true, name:"マカダミアチョコ",store:"コクミン薬局",cat:"お菓子",price:257,amount:9,unit:"個",memo:""},
   {fav:false,name:"マカダミアチョコ",store:"マックスバリュ",cat:"お菓子",price:300,amount:9,unit:"個",memo:""},
@@ -433,57 +441,41 @@ function calcUnitPrice(d){
   return d.price/d.amount;
 }
 rawData.forEach(d=>{d.unitPrice=calcUnitPrice(d);});
-
-function fmtUP(d){
-  const up=d.unitPrice;
-  if(!up)return null;
-  if(['g','ml'].includes(d.unit))return(up*100).toFixed(1)+'円/100'+d.unit;
-  return up.toFixed(1)+'円/'+d.unit;
-}
+function fmtUP(d){const up=d.unitPrice;if(!up)return null;if(['g','ml'].includes(d.unit))return(up*100).toFixed(1)+'円/100'+d.unit;return up.toFixed(1)+'円/'+d.unit;}
 function fmtAmt(d){return d.amount+d.unit;}
-function esc(s){return s.replace(/'/g,"\\'");}
+function esc(s){return String(s).replace(/'/g,"\'");}
+function getMinMax(cat){const items=rawData.filter(x=>x.cat===cat&&x.unitPrice!=null);if(!items.length)return{minUP:null,maxUP:null};return{minUP:Math.min(...items.map(x=>x.unitPrice)),maxUP:Math.max(...items.map(x=>x.unitPrice))};}
 
 // =====================
-// ★ お気に入り共通（同一商品名+店名をすべて同期）
+// ★ お気に入り共通
 // =====================
 function toggleFavByKey(name,store){
-  const items=rawData.filter(x=>x.name===name&&x.store===store);
-  if(!items.length)return;
-  const newVal=!items[0].fav;
-  items.forEach(x=>{x.fav=newVal;});
+  rawData.filter(x=>x.name===name&&x.store===store).forEach(x=>{x.fav=!x.fav;});
   refreshCurrentPage();
 }
-
 function refreshCurrentPage(){
   const id=document.querySelector('.page.active').id;
-  if(id==='page-products')  renderProductComparison();
-  if(id==='page-stores')    renderStoreProducts();
-  if(id==='page-all')       renderAllProducts();
-  // 検索は自動再描画しない（入力状態を保持）
+  if(id==='page-products')renderProductComparison();
+  if(id==='page-stores')renderStoreProducts();
+  if(id==='page-all')renderAllProducts();
 }
 
 // =====================
-// 全ページ共通カード HTML ビルダー
+// 全ページ共通カード
 // =====================
-function buildRow(d, mode, minUP, maxUP){
-  const isBest=d.unitPrice!==null&&d.unitPrice===minUP&&minUP!==maxUP;
+function buildRow(d,mode,minUP,maxUP){
+  const isBest=d.unitPrice!=null&&d.unitPrice===minUP&&minUP!==maxUP;
   const dealPct=(isBest&&maxUP)?Math.round((1-minUP/maxUP)*100):0;
   const up=fmtUP(d);
-
   let badges='';
-  if(isBest)  badges+=`<span class="best-badge">✦ 最安</span>`;
-  if(dealPct>0) badges+=`<span class="deal-badge">▼${dealPct}%</span>`;
-
-  // サブ行：店名 + 単価（補助）
+  if(isBest)badges+=`<span class="best-badge">✦ 最安</span>`;
+  if(dealPct>0)badges+=`<span class="deal-badge">▼${dealPct}%</span>`;
   let sub=`<span>${d.store}</span>`;
-  if(up) sub+=`<span>${up}</span>`;
-  if(d.memo) sub+=`<span style="color:var(--accent2)">📝</span>`;
-
-  // メモ追加ボタン（商品ページのみ）
+  if(up)sub+=`<span>${up}</span>`;
+  if(d.memo)sub+=`<span style="color:var(--accent2)">📝</span>`;
   const memoBtn=mode==='product'
-    ?`<button class="memo-add-btn" onclick="event.stopPropagation();addMemoItem('${esc(d.name)}','${esc(d.store)}',${d.price})" title="買い物メモへ追加">＋</button>`
+    ?`<button class="memo-add-btn" onclick="event.stopPropagation();addMemoItem('${esc(d.name)}','${esc(d.store)}',${d.price??'null'})" title="買い物メモへ追加">＋</button>`
     :'';
-
   return `<div class="item-row${isBest?' best-row':''}" onclick="openModal('${esc(d.name)}','${esc(d.store)}')">
     <button class="star-btn${d.fav?' on':''}" onclick="event.stopPropagation();toggleFavByKey('${esc(d.name)}','${esc(d.store)}')" title="お気に入り">${d.fav?'★':'☆'}</button>
     <div class="item-info">
@@ -492,7 +484,7 @@ function buildRow(d, mode, minUP, maxUP){
       ${badges?`<div class="item-badges">${badges}</div>`:''}
     </div>
     <div class="item-price-block">
-      <div class="item-price-main">${d.price}<span style="font-size:11px;font-weight:400;color:var(--text-muted)">円</span></div>
+      <div class="item-price-main">${d.price!=null?d.price:'—'}<span style="font-size:11px;font-weight:400;color:var(--text-muted)">${d.price!=null?'円':''}</span></div>
       <div class="item-price-sub">${fmtAmt(d)}</div>
     </div>
     ${memoBtn}
@@ -500,32 +492,121 @@ function buildRow(d, mode, minUP, maxUP){
   </div>`;
 }
 
-function getMinMax(cat){
-  const items=rawData.filter(x=>x.cat===cat&&x.unitPrice!==null);
-  if(!items.length)return{minUP:null,maxUP:null};
-  return{minUP:Math.min(...items.map(x=>x.unitPrice)),maxUP:Math.max(...items.map(x=>x.unitPrice))};
+// =====================
+// 商品ページ：一本化入力欄
+// =====================
+let psIdx=-1;
+let currentCat=null;
+
+function onProductSearchFocus(){
+  showProductSuggestions(document.getElementById('product-search-input').value.trim());
+}
+function onProductSearch(){
+  const q=document.getElementById('product-search-input').value.trim();
+  showProductSuggestions(q);
+  if(!q)clearProductSelection();
 }
 
-// =====================
-// 商品ページ
-// =====================
-function initProductSelect(){
-  const sel=document.getElementById('product-select');
-  [...new Set(rawData.map(d=>d.cat))].forEach(c=>{
-    const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);
+function showProductSuggestions(q){
+  const box=document.getElementById('product-suggestions');
+  const catSet=new Set(),nameSet=new Set();
+  let catItems=[],nameItems=[];
+  rawData.forEach(d=>{
+    const mC=!q||d.cat.includes(q);
+    const mN=!q||d.name.includes(q)||d.cat.includes(q);
+    if(mC&&!catSet.has(d.cat)){catSet.add(d.cat);catItems.push(d);}
+    if(mN&&!nameSet.has(d.name)){nameSet.add(d.name);nameItems.push(d);}
   });
+  if(!q){catItems=catItems.slice(0,20);nameItems=[];}
+  else{catItems=catItems.slice(0,5);nameItems=nameItems.slice(0,8);}
+
+  let html='';
+  if(catItems.length){
+    if(q)html+=`<div class="ps-hint">カテゴリ</div>`;
+    html+=catItems.map(d=>`<div class="ps-item" onclick="selectProductCat('${esc(d.cat)}')">`+
+      `<span class="ps-item-name">${d.cat}</span>`+
+      `<span class="ps-item-meta">${rawData.filter(x=>x.cat===d.cat).length}件</span></div>`).join('');
+  }
+  if(q&&nameItems.length){
+    html+=`<div class="ps-hint">商品名</div>`;
+    html+=nameItems.map(d=>`<div class="ps-item" onclick="selectProductName('${esc(d.name)}','${esc(d.store)}',${d.price??'null'})">`+
+      `<span class="ps-item-name">${d.name}</span>`+
+      `<span class="ps-item-meta">${d.store}${d.price!=null?' · '+d.price+'円':''}</span></div>`).join('');
+  }
+  if(q){
+    html+=`<div class="ps-item" onclick="addFreeInputToMemo('${esc(q)}')">`+
+      `<span class="ps-item-free">＋「${q}」を買い物メモへ追加</span></div>`;
+  }
+  if(!html)html='<div class="ps-hint">候補が見つかりません</div>';
+  box.innerHTML=html;
+  box.classList.add('open');
+  psIdx=-1;
+}
+
+function selectProductCat(cat){
+  currentCat=cat;
+  document.getElementById('product-search-input').value='';
+  document.getElementById('product-suggestions').classList.remove('open');
+  document.getElementById('product-selected-cat-label').textContent=cat+' の比較';
+  document.getElementById('product-selected-cat').style.display='flex';
+  renderProductComparison();
+}
+
+function selectProductName(name,store,price){
+  const hit=rawData.find(d=>d.name===name&&d.store===store);
+  document.getElementById('product-search-input').value='';
+  document.getElementById('product-suggestions').classList.remove('open');
+  if(hit){
+    currentCat=hit.cat;
+    document.getElementById('product-selected-cat-label').textContent=hit.cat+' の比較';
+    document.getElementById('product-selected-cat').style.display='flex';
+    renderProductComparison();
+  }
+  addMemoItem(name,store,price);
+}
+
+function addFreeInputToMemo(text){
+  document.getElementById('product-search-input').value='';
+  document.getElementById('product-suggestions').classList.remove('open');
+  addMemoItem(text,null,null);
+}
+
+function addSearchInputToMemo(){
+  const val=document.getElementById('product-search-input').value.trim();
+  if(!val)return;
+  const hit=rawData.find(d=>d.name===val);
+  addMemoItem(val,hit?hit.store:null,hit?hit.price:null);
+  document.getElementById('product-search-input').value='';
+  document.getElementById('product-suggestions').classList.remove('open');
+}
+
+function onProductSearchKeydown(e){
+  const box=document.getElementById('product-suggestions');
+  const items=box.querySelectorAll('.ps-item');
+  if(e.key==='ArrowDown'){e.preventDefault();psIdx=Math.min(psIdx+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('focused',i===psIdx));box.classList.add('open');}
+  else if(e.key==='ArrowUp'){e.preventDefault();psIdx=Math.max(psIdx-1,0);items.forEach((el,i)=>el.classList.toggle('focused',i===psIdx));}
+  else if(e.key==='Enter'){e.preventDefault();if(psIdx>=0&&items[psIdx])items[psIdx].click();else addSearchInputToMemo();}
+  else if(e.key==='Escape'){box.classList.remove('open');}
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#product-search-wrap'))
+    document.getElementById('product-suggestions').classList.remove('open');
+});
+
+function clearProductSelection(){
+  currentCat=null;
+  document.getElementById('product-selected-cat').style.display='none';
+  document.getElementById('product-comparison').innerHTML='';
 }
 
 function renderProductComparison(){
-  const cat=document.getElementById('product-select').value;
   const el=document.getElementById('product-comparison');
-  if(!cat){el.innerHTML='';return;}
-  const items=rawData.filter(d=>d.cat===cat);
+  if(!currentCat){el.innerHTML='';return;}
+  const items=rawData.filter(d=>d.cat===currentCat);
   if(!items.length){el.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>該当商品なし</p></div>';return;}
-  const{minUP,maxUP}=getMinMax(cat);
-  const sorted=[...items].sort((a,b)=>{
-    if(a.unitPrice===null)return 1;if(b.unitPrice===null)return -1;return a.unitPrice-b.unitPrice;
-  });
+  const{minUP,maxUP}=getMinMax(currentCat);
+  const sorted=[...items].sort((a,b)=>{if(a.unitPrice==null)return 1;if(b.unitPrice==null)return -1;return a.unitPrice-b.unitPrice;});
   el.innerHTML=`<div class="item-list">${sorted.map(d=>buildRow(d,'product',minUP,maxUP)).join('')}</div>`;
 }
 
@@ -535,23 +616,16 @@ function renderProductComparison(){
 function initStoreSelect(){
   const sel=document.getElementById('store-select');
   if(sel.options.length>1)return;
-  [...new Set(rawData.map(d=>d.store))].sort().forEach(s=>{
-    const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);
-  });
+  [...new Set(rawData.map(d=>d.store))].sort().forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
 }
-
 function renderStoreProducts(){
   const store=document.getElementById('store-select').value;
   const el=document.getElementById('store-products');
   if(!store){el.innerHTML='';return;}
-  const items=rawData.filter(d=>d.store===store).sort((a,b)=>a.cat.localeCompare(b.cat,'ja')||a.price-b.price);
+  const items=rawData.filter(d=>d.store===store).sort((a,b)=>a.cat.localeCompare(b.cat,'ja')||(a.price??0)-(b.price??0));
   if(!items.length){el.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>商品なし</p></div>';return;}
   let html='<div class="item-list">',lastCat=null;
-  items.forEach(d=>{
-    if(d.cat!==lastCat){html+=`<div class="cat-divider">${d.cat}</div>`;lastCat=d.cat;}
-    const{minUP,maxUP}=getMinMax(d.cat);
-    html+=buildRow(d,'other',minUP,maxUP);
-  });
+  items.forEach(d=>{if(d.cat!==lastCat){html+=`<div class="cat-divider">${d.cat}</div>`;lastCat=d.cat;}const{minUP,maxUP}=getMinMax(d.cat);html+=buildRow(d,'other',minUP,maxUP);});
   el.innerHTML=html+'</div>';
 }
 
@@ -562,17 +636,10 @@ function renderSearch(query){
   const el=document.getElementById('search-results');
   const q=query.trim().toLowerCase();
   if(!q){el.innerHTML='';return;}
-  const results=rawData.filter(d=>
-    d.name.toLowerCase().includes(q)||d.store.toLowerCase().includes(q)||
-    d.cat.toLowerCase().includes(q)||(d.memo&&d.memo.toLowerCase().includes(q))
-  ).sort((a,b)=>a.cat.localeCompare(b.cat,'ja')||a.price-b.price);
+  const results=rawData.filter(d=>d.name.toLowerCase().includes(q)||d.store.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q)||(d.memo&&d.memo.toLowerCase().includes(q))).sort((a,b)=>a.cat.localeCompare(b.cat,'ja')||(a.price??0)-(b.price??0));
   if(!results.length){el.innerHTML=`<div class="empty-state"><div class="icon">🔍</div><p>「${query}」は見つかりません</p></div>`;return;}
   let html='<div class="item-list">',lastCat=null;
-  results.forEach(d=>{
-    if(d.cat!==lastCat){html+=`<div class="cat-divider">${d.cat}</div>`;lastCat=d.cat;}
-    const{minUP,maxUP}=getMinMax(d.cat);
-    html+=buildRow(d,'other',minUP,maxUP);
-  });
+  results.forEach(d=>{if(d.cat!==lastCat){html+=`<div class="cat-divider">${d.cat}</div>`;lastCat=d.cat;}const{minUP,maxUP}=getMinMax(d.cat);html+=buildRow(d,'other',minUP,maxUP);});
   el.innerHTML=html+'</div>';
 }
 
@@ -581,13 +648,9 @@ function renderSearch(query){
 // =====================
 function renderAllProducts(){
   const el=document.getElementById('all-products');
-  const sorted=[...rawData].sort((a,b)=>a.cat.localeCompare(b.cat,'ja')||a.price-b.price);
+  const sorted=[...rawData].sort((a,b)=>a.cat.localeCompare(b.cat,'ja')||(a.price??0)-(b.price??0));
   let html='<div class="item-list">',lastCat=null;
-  sorted.forEach(d=>{
-    if(d.cat!==lastCat){html+=`<div class="cat-divider">${d.cat}</div>`;lastCat=d.cat;}
-    const{minUP,maxUP}=getMinMax(d.cat);
-    html+=buildRow(d,'other',minUP,maxUP);
-  });
+  sorted.forEach(d=>{if(d.cat!==lastCat){html+=`<div class="cat-divider">${d.cat}</div>`;lastCat=d.cat;}const{minUP,maxUP}=getMinMax(d.cat);html+=buildRow(d,'other',minUP,maxUP);});
   el.innerHTML=html+'</div>';
 }
 
@@ -607,66 +670,54 @@ function showPage(name){
 // 詳細モーダル
 // =====================
 let modalItem=null;
-
 function openModal(name,store){
   const d=rawData.find(x=>x.name===name&&x.store===store);
   if(!d)return;
   modalItem=d;
   document.getElementById('modal-name').textContent=d.name;
-
   const{minUP}=getMinMax(d.cat);
-  const catCnt=rawData.filter(x=>x.cat===d.cat&&x.unitPrice!==null).length;
-  const isBest=d.unitPrice!==null&&d.unitPrice===minUP&&catCnt>1;
-
+  const catCnt=rawData.filter(x=>x.cat===d.cat&&x.unitPrice!=null).length;
+  const isBest=d.unitPrice!=null&&d.unitPrice===minUP&&catCnt>1;
   let badges=`<span class="cat-badge">${d.cat}</span>`;
   if(isBest)badges+=' <span class="best-badge">✦ 最安</span>';
-  if(d.fav) badges+=` <span style="font-size:13px;color:var(--star-on)">★</span>`;
+  if(d.fav)badges+=` <span style="font-size:13px;color:var(--star-on)">★</span>`;
   document.getElementById('modal-badges').innerHTML=badges;
-
   const up=fmtUP(d);
-  let grid=`
-    <span class="mdg-label">販売価格</span><span class="mdg-value"><span class="mdg-price">${d.price}</span> <span style="font-size:13px;color:var(--text-muted)">円</span></span>
-    <span class="mdg-label">量</span><span class="mdg-value">${fmtAmt(d)}</span>
-    <span class="mdg-label">単価</span><span class="mdg-value">${up||'—'}</span>
-    <span class="mdg-label">店名</span><span class="mdg-value">${d.store}</span>`;
+  let grid=`<span class="mdg-label">販売価格</span><span class="mdg-value"><span class="mdg-price">${d.price!=null?d.price:'—'}</span>${d.price!=null?' <span style="font-size:13px;color:var(--text-muted)">円</span>':''}</span>`+
+    `<span class="mdg-label">量</span><span class="mdg-value">${fmtAmt(d)}</span>`+
+    `<span class="mdg-label">単価</span><span class="mdg-value">${up||'—'}</span>`+
+    `<span class="mdg-label">店名</span><span class="mdg-value">${d.store}</span>`;
   if(d.memo)grid+=`<span class="mdg-label">メモ</span><span class="mdg-value">${d.memo}</span>`;
   document.getElementById('modal-grid').innerHTML=grid;
-
   document.getElementById('modal-detail').style.display='';
   document.getElementById('edit-panel').classList.remove('open');
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
-
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.body.style.overflow='';modalItem=null;
-}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');document.body.style.overflow='';modalItem=null;}
 function openEditPanel(){
   if(!modalItem)return;
   document.getElementById('edit-name').value=modalItem.name;
   document.getElementById('edit-cat').value=modalItem.cat;
   document.getElementById('edit-store').value=modalItem.store;
-  document.getElementById('edit-price').value=modalItem.price;
+  document.getElementById('edit-price').value=modalItem.price??'';
   document.getElementById('edit-amount').value=modalItem.amount;
   document.getElementById('edit-unit').value=modalItem.unit;
   document.getElementById('edit-memo').value=modalItem.memo||'';
   document.getElementById('modal-detail').style.display='none';
   document.getElementById('edit-panel').classList.add('open');
 }
-function cancelEdit(){
-  document.getElementById('modal-detail').style.display='';
-  document.getElementById('edit-panel').classList.remove('open');
-}
+function cancelEdit(){document.getElementById('modal-detail').style.display='';document.getElementById('edit-panel').classList.remove('open');}
 function saveEdit(){
   if(!modalItem)return;
-  modalItem.name  =document.getElementById('edit-name').value.trim()||modalItem.name;
-  modalItem.cat   =document.getElementById('edit-cat').value.trim()||modalItem.cat;
-  modalItem.store =document.getElementById('edit-store').value.trim()||modalItem.store;
-  modalItem.price =parseFloat(document.getElementById('edit-price').value)||modalItem.price;
+  modalItem.name=document.getElementById('edit-name').value.trim()||modalItem.name;
+  modalItem.cat=document.getElementById('edit-cat').value.trim()||modalItem.cat;
+  modalItem.store=document.getElementById('edit-store').value.trim()||modalItem.store;
+  const pv=document.getElementById('edit-price').value;
+  modalItem.price=pv===''?null:(parseFloat(pv)||modalItem.price);
   modalItem.amount=parseFloat(document.getElementById('edit-amount').value)||modalItem.amount;
-  modalItem.unit  =document.getElementById('edit-unit').value.trim()||modalItem.unit;
-  modalItem.memo  =document.getElementById('edit-memo').value.trim();
+  modalItem.unit=document.getElementById('edit-unit').value.trim()||modalItem.unit;
+  modalItem.memo=document.getElementById('edit-memo').value.trim();
   modalItem.unitPrice=calcUnitPrice(modalItem);
   closeModal();refreshCurrentPage();
 }
@@ -688,10 +739,7 @@ function openAddModal(){
   document.getElementById('add-modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
-function closeAddModal(){
-  document.getElementById('add-modal-overlay').classList.remove('open');
-  document.body.style.overflow='';
-}
+function closeAddModal(){document.getElementById('add-modal-overlay').classList.remove('open');document.body.style.overflow='';}
 function saveNewProduct(){
   const name=document.getElementById('add-name').value.trim();
   const cat=document.getElementById('add-cat').value.trim();
@@ -703,115 +751,52 @@ function saveNewProduct(){
   const memo=document.getElementById('add-memo').value.trim();
   const nd={fav:false,name,store,cat,price,amount,unit,memo,unitPrice:null};
   nd.unitPrice=calcUnitPrice(nd);rawData.push(nd);
-  const sel=document.getElementById('product-select');
-  if(![...sel.options].find(o=>o.value===cat)){const o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);}
   closeAddModal();
-  document.getElementById('product-select').value=cat;
-  renderProductComparison();
+  selectProductCat(cat);
 }
 
 // =====================
-// 買い物メモ
+// 買い物メモ（結果表示のみ）
 // =====================
-let memoItems=[],suggIdx=-1;
+let memoItems=[];
 
-function getUniqProducts(){
-  const seen=new Set();
-  return rawData.filter(d=>{if(seen.has(d.name))return false;seen.add(d.name);return true;});
-}
-function onMemoInput(){showSugs(document.getElementById('memo-input').value.trim());}
-function onMemoFocus(){showSugs(document.getElementById('memo-input').value.trim());}
-function showSugs(q){
-  const box=document.getElementById('suggestions');
-  const all=getUniqProducts();
-  const fil=q?all.filter(d=>d.name.includes(q)||d.cat.includes(q)):all.slice(0,20);
-  let html=fil.map(d=>`<div class="suggestion-item" onclick="selSug('${esc(d.name)}')"><span>${d.name}</span><span class="suggestion-store">${d.store}/${d.cat}</span></div>`).join('');
-  if(q&&!fil.find(d=>d.name===q))html+=`<div class="suggestion-item new-item" onclick="selSug('${esc(q)}')">＋「${q}」を追加</div>`;
-  box.innerHTML=html;box.classList.toggle('open',html.length>0);suggIdx=-1;
-}
-function selSug(name){
-  document.getElementById('suggestions').classList.remove('open');
-  document.getElementById('memo-input').value='';
-  addMemoItem(name);
-}
-function onMemoKeydown(e){
-  const items=document.getElementById('suggestions').querySelectorAll('.suggestion-item');
-  if(e.key==='ArrowDown'){e.preventDefault();suggIdx=Math.min(suggIdx+1,items.length-1);items.forEach((el,i)=>el.style.background=i===suggIdx?'var(--accent-light)':'');}
-  else if(e.key==='ArrowUp'){e.preventDefault();suggIdx=Math.max(suggIdx-1,0);items.forEach((el,i)=>el.style.background=i===suggIdx?'var(--accent-light)':'');}
-  else if(e.key==='Enter'){e.preventDefault();if(suggIdx>=0&&items[suggIdx])items[suggIdx].click();else addMemoFromInput();}
-  else if(e.key==='Escape')document.getElementById('suggestions').classList.remove('open');
-}
-document.addEventListener('click',e=>{if(!e.target.closest('.autocomplete-wrap'))document.getElementById('suggestions').classList.remove('open');});
-function addMemoFromInput(){
-  const val=document.getElementById('memo-input').value.trim();
-  if(!val)return;
-  addMemoItem(val);
-  document.getElementById('memo-input').value='';
-  document.getElementById('suggestions').classList.remove('open');
-}
-function addMemoItem(text, store, price){
+function addMemoItem(text,store,price){
   if(!text)return;
-  // rawDataから該当商品を探して店名・価格を補完
-  if(store===undefined||price===undefined){
-    const hit=rawData.find(d=>d.name===text);
-    store = hit ? hit.store : null;
-    price = hit ? hit.price : null;
-  }
-  memoItems.push({text, store, price, checked:false, id:Date.now()+Math.random()});
+  if(store===undefined||price===undefined){const hit=rawData.find(d=>d.name===text);store=hit?hit.store:null;price=hit?hit.price:null;}
+  memoItems.push({text,store,price,checked:false,id:Date.now()+Math.random()});
   renderMemo();
 }
+
 function renderMemo(){
   const list=document.getElementById('memo-list');
   const count=document.getElementById('memo-count');
   count.textContent=memoItems.filter(m=>!m.checked).length;
-
   if(!memoItems.length){
-    list.innerHTML='<div style="text-align:center;padding:14px;color:var(--text-muted);font-size:12px;">メモはまだありません</div>';
+    list.innerHTML='<div style="text-align:center;padding:16px 0;font-size:12px;color:var(--text-muted);">上の欄から商品を追加してください</div>';
     return;
   }
-
-  // 各行を描画
   const rows=memoItems.map(m=>{
-    const storeHtml=m.store
-      ?`<span class="memo-item-store">${m.store}</span>`
-      :'';
-    const priceHtml=m.price!=null
-      ?`<span class="memo-item-price">${m.price}円</span>`
-      :'';
-    const detailHtml=(storeHtml||priceHtml)
-      ?`<div class="memo-item-detail">${storeHtml}${storeHtml&&priceHtml?'<span style="color:var(--border)">·</span>':''}${priceHtml}</div>`
-      :'';
+    const storeHtml=m.store?`<span class="memo-item-store">${m.store}</span>`:'';
+    const priceHtml=m.price!=null?`<span class="memo-item-price">${m.price}円</span>`:'';
+    const sep=storeHtml&&priceHtml?'<span style="color:var(--border)">·</span>':'';
+    const detailHtml=(storeHtml||priceHtml)?`<div class="memo-item-detail">${storeHtml}${sep}${priceHtml}</div>`:'';
     return `<div class="memo-item${m.checked?' checked':''}">
       <input type="checkbox" class="memo-check" ${m.checked?'checked':''} onchange="toggleMemo(${m.id})">
-      <div class="memo-item-body">
-        <div class="memo-item-name">${m.text}</div>
-        ${detailHtml}
-      </div>
+      <div class="memo-item-body"><div class="memo-item-name">${m.text}</div>${detailHtml}</div>
       <button class="delete-btn" onclick="deleteMemo(${m.id})" title="削除">✕</button>
     </div>`;
   }).join('');
-
-  // 合計金額（未チェック＋価格あり）
   const priceItems=memoItems.filter(m=>!m.checked&&m.price!=null);
   const unknownCnt=memoItems.filter(m=>!m.checked&&m.price==null).length;
   const total=priceItems.reduce((s,m)=>s+m.price,0);
-  const totalHtml=memoItems.length
-    ?`<div class="memo-total">
-        <span class="memo-total-label">合計金額</span>
-        <span>
-          <span class="memo-total-amount">${total.toLocaleString()}円</span>
-          ${unknownCnt>0?`<span class="memo-total-unknown">+金額不明 ${unknownCnt}件</span>`:''}
-        </span>
-      </div>`
-    :'';
-
+  const totalHtml=`<div class="memo-total"><span class="memo-total-label">合計金額</span><span><span class="memo-total-amount">${total.toLocaleString()}円</span>${unknownCnt>0?`<span class="memo-total-unknown">+不明 ${unknownCnt}件</span>`:''}</span></div>`;
   list.innerHTML=rows+totalHtml;
 }
+
 function toggleMemo(id){const m=memoItems.find(x=>x.id===id);if(m){m.checked=!m.checked;renderMemo();}}
 function deleteMemo(id){memoItems=memoItems.filter(x=>x.id!==id);renderMemo();}
 
 // INIT
-initProductSelect();
 renderMemo();
 </script>
 </body>
